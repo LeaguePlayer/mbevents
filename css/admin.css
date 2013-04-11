@@ -1,0 +1,36 @@
+.tabs {
+	display: inline-block;
+	vertical-align: top;
+	width: 455px;
+	padding: 10px;
+	border: 2px solid #000;
+}
+
+.tab-content {
+	min-height: 50px;
+	padding: 5px;
+	border: 1px solid #000;
+}
+
+.lesson-list {
+	display: inline-block;
+	vertical-align: top;
+	width: 200px;
+	padding: 10px;
+	border: 2px solid #000;
+	min-height: 80px;
+	border-radius: 5px;
+}
+
+.lesson-item {
+	padding: 5px;
+	border: 1px solid #000;
+	margin: 2px 0;
+	background: #fff;
+}
+
+.removeButton {
+	float: right;
+	text-decoration: none;
+	color: #0066CC;
+}
