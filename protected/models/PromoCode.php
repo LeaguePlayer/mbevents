@@ -12,9 +12,25 @@
  */
 class PromoCode extends CActiveRecord
 {
-    const STATUS_VALID = 1;
-    const STATUS_USED = 2;
+    const STATUS_ACTIVE = 1;
+    const STATUS_NOACTIVE = 2;
+    const STATUS_USED = 3;
     
+    public static function getAllStatuses()
+    {
+        return array(
+            0 => 'Без статуса',
+            self::STATUS_ACTIVE => 'Активен',
+            self::STATUS_NOACTIVE => 'Не активен',
+            self::STATUS_USED => 'Использован',
+        );
+    }
+    
+    public function getStatus()
+    {
+        $statuses = self::getAllStatuses();
+        return $statuses[$this->status];
+    }
     
     public $count;
     public $expire_date;
@@ -74,11 +90,12 @@ class PromoCode extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'code' => 'Код',
-			'expire' => 'Период действия',
+			'expire' => 'Действителен до',
 			'last_update' => 'Last Update',
-			'status' => 'Status',
+			'status' => 'Статус',
             'count' => 'Количество',
-            'expire_date' => 'Период действия',
+            'expire_date' => 'Действителен до',
+            'use_date' => 'Дата использования'
 		);
 	}
 
@@ -107,12 +124,15 @@ class PromoCode extends CActiveRecord
     protected function beforeSave()
     {
         if ( parent::beforeSave() ) {
-            if ( empty($this->code) OR $this->isRepeatCode() ) {
+            if ( empty($this->code) ) {
                 do {
                     $this->generateCode();
                 } while($this->isRepeatCode());
             }
             $this->last_update = time();
+            if ( $this->isNewRecord ) {
+                $this->status = self::STATUS_ACTIVE;
+            }
             return true;
         }
         return false;
@@ -137,7 +157,7 @@ class PromoCode extends CActiveRecord
     {
         $result = '';
         $string = 'abcdefghijlklmnopqrstuvwxyzABCDEFGHIJLKLMNOPQRSTUVWXYZ1234567890';
-        $n = strlen($string);
+        $n = strlen($string) - 1;
         for ($i=0; $i<$length; $i++)
         {
             $result .= $string[rand(0, $n)];
