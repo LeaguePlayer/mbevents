@@ -6,5 +6,5 @@ protected/config/console.php
 uploads/
 framework/
 *~
-index.php
+/index.php
 protected/yiic.php
