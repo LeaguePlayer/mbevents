@@ -44,6 +44,7 @@
             $this->widget('zii.widgets.CMenu',array(
     			'items'=>array(
                     array('label'=>'Промо-коды', 'url'=>array('/promocode/admin')),
+                    array('label'=>'Видео', 'url'=>array('/video/upload')),
     				array('label'=>'Вход', 'url'=>array('/user/login')),
                 ),
     		));
@@ -51,6 +52,7 @@
             $this->widget('zii.widgets.CMenu',array(
     			'items'=>array(
     				array('label'=>'Промо-коды', 'url'=>array('/promocode/admin')),
+                    array('label'=>'Видео', 'url'=>array('/video/upload')),
                     array('label'=>'Выход', 'url'=>array('/user/logout')),
                 ),
     		));
@@ -66,6 +68,7 @@
                     array('label'=>'Учебные материалы', 'url'=>array('/source/admin')),
                     array('label'=>'Видео-курсы', 'url'=>array('/course/admin')),
                     array('label'=>'Пользователи', 'url'=>array('/user/admin')),
+                    array('label'=>'Выход', 'url'=>array('/user/logout')),
                 ),
     		));
         }

@@ -38,7 +38,10 @@ class SiteController extends Controller
         ));
         
         if ( Yii::app()->request->isAjaxRequest ) {
-            echo $this->renderPartial('_feedAjax', array('dataProvider'=>$blogDataProvider));
+            echo $this->renderPartial('_loopAjax', array(
+                'dataProvider'=>$blogDataProvider,
+                'itemView'=>'_view',
+            ));
             Yii::app()->end();
         }
         

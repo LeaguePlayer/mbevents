@@ -49,6 +49,7 @@ class Course extends CActiveRecord
 			array('title, video_preview', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
+            array('description', 'safe'),
 			array('id, category_id, title, video_preview, basic_cost, advanced_cost', 'safe', 'on'=>'search'),
 		);
 	}
@@ -61,6 +62,7 @@ class Course extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'category'=>array(self::BELONGS_TO, 'Category', 'category_id', 'order'=>'category.name'),
             'lessons'=>array(self::HAS_MANY, 'Lesson', 'course_id', 'order'=>'lessons.data_sort'),
 		);
 	}
@@ -77,6 +79,7 @@ class Course extends CActiveRecord
 			'video_preview' => 'Видео-обзор',
 			'basic_cost' => 'Стоимость базовой части',
 			'advanced_cost' => 'Стоимость расширенной части',
+            'description' => 'Описание'
 		);
 	}
 

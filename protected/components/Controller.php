@@ -35,6 +35,10 @@ class Controller extends CController
         $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/plugins/jwplayer/' );
         Yii::app()->clientScript->registerScriptFile( $url.'/jwplayer.js', CClientScript::POS_END );
         
+        // global Scripts
+        $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/js/' );
+        Yii::app()->clientScript->registerScriptFile( $url.'/scripts.js', CClientScript::POS_BEGIN );
+        
         return true;
     }
 }

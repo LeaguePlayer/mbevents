@@ -75,7 +75,7 @@ class CourseController extends Controller
         if ( isset($_POST['Course']) ) {
             $model->setAttributes($_POST['Course']);
             if ( $model->save() ) {
-                $this->redirect('admin');
+                $this->redirect('/course/admin');
             }
         }
         
@@ -178,16 +178,52 @@ class CourseController extends Controller
 			$this->redirect(isset($_POST['returnUrl']) ? $_POST['returnUrl'] : array('admin'));
 	}
 
+
+
+
 	/**
 	 * Lists all models.
 	 */
-	public function actionIndex()
+	public function actionIndex($category = false)
 	{
-		$dataProvider=new CActiveDataProvider('Course');
+        // Вывести курсы по категориям
+        // Если категория не указана, вывести курсы для всех категорий
+        
+        $criteria = new CDbCriteria;
+        $criteria->with = array('category', 'lessons');
+        $pageVar = 'page';
+        $this->processPageRequest($pageVar);
+		$dataProvider=new CActiveDataProvider('Course', array(
+            'criteria'=>$criteria,
+            'pagination'=>array(
+                'pageSize'=>1,
+                'pageVar' =>$pageVar,
+            ),
+        ));
+        
+        if ( Yii::app()->request->isAjaxRequest ) {
+            echo $this->renderPartial('/site/_loopAjax', array(
+                'dataProvider'=>$dataProvider,
+                'itemView'=>'/course/_view',
+            ));
+            Yii::app()->end();
+        }
+        
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
 		));
 	}
+    
+    
+    
+    
+    
+    
+    protected function processPageRequest($param = 'page')
+    {
+        if (Yii::app()->request->isAjaxRequest && isset($_POST[$param]))
+            $_GET[$param] = Yii::app()->request->getPost($param);
+    }
 
 	/**
 	 * Manages all models.

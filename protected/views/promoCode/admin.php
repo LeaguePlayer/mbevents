@@ -89,7 +89,7 @@ $('.generator-form form').submit(function() {
         array(
             'name'=>'expire',
             'type'=>'raw',
-            'value'=>'date("d.m.Y", $data->expire)'
+            'value'=>'($date->expire==0) ? "Не указано" : date("d.m.Y", $data->expire)'
         ),
 		array(
             'name'=>'status',

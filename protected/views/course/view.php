@@ -9,6 +9,7 @@
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'course-form',
 	'enableAjaxValidation'=>false,
+    'action'=>$this->createUrl('/course/view', array('id'=>$model->id, 'operation'=>'edit')),
 )); ?>
 
 	<p class="note">Fields with <span class="required">*</span> are required.</p>
@@ -31,20 +32,26 @@
     
     	<div class="row">
     		<?php echo $form->labelEx($model,'video_preview'); ?>
-    		<?php echo $form->textField($model,'video_preview',array('size'=>60,'maxlength'=>255)); ?>
+    		<?php echo $form->textField($model,'video_preview',array('cols'=>60,'maxlength'=>255)); ?>
     		<?php echo $form->error($model,'video_preview'); ?>
     	</div>
         
         <div class="row">
-    		<?php echo $form->labelEx($model,'basic_cost'); ?>
-    		<?php echo $form->textField($model,'basic_cost'); ?>
-    		<?php echo $form->error($model,'basic_cost'); ?>
+    		<?php echo $form->labelEx($model,'description'); ?>
+    		<?php echo $form->textArea($model,'description'); ?>
+    		<?php echo $form->error($model,'description'); ?>
     	</div>
         
         <div class="row">
     		<?php echo $form->labelEx($model,'advanced_cost'); ?>
     		<?php echo $form->textField($model,'advanced_cost'); ?>
     		<?php echo $form->error($model,'advanced_cost'); ?>
+    	</div>
+        
+        <div class="row">
+    		<?php echo $form->labelEx($model,'basic_cost'); ?>
+    		<?php echo $form->textField($model,'basic_cost'); ?>
+    		<?php echo $form->error($model,'basic_cost'); ?>
     	</div>
         
     </fieldset>

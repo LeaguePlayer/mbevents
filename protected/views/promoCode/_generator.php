@@ -27,7 +27,7 @@
             'language'=>'ru',
             // additional javascript options for the date picker plugin
             'options'=>array(
-                'showAnim'=>'fold',
+                'showAnim'=>'fade',
             ),
             'htmlOptions'=>array(
             ),
