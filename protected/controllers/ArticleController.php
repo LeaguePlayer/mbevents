@@ -28,7 +28,7 @@ class ArticleController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view'),
+				'actions'=>array('index','view','search'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -215,4 +215,38 @@ class ArticleController extends Controller
 			Yii::app()->end();
 		}
 	}
+    
+    public function actionSearch()
+    {
+        $search = new SiteSearchForm;
+        if(isset($_POST['SiteSearchForm'])) {
+            $search->attributes = $_POST['SiteSearchForm'];
+            $_GET['searchString'] = $search->string;
+        } else {
+            $search->string = $_GET['searchString'];
+        }
+        
+        $model = new Article;
+        $model->full_description = $search->string;
+        $this->processPageRequest('page');
+        
+        if ( Yii::app()->request->isAjaxRequest ) {
+            echo $this->renderPartial('/site/_loopAjax', array(
+                'dataProvider'=>$model->search(),
+                'itemView'=>'_view',
+            ));
+            Yii::app()->end();
+        }
+        
+        $this->render('found', array(
+            'dataProvider'=>$model->search(),
+            'form'=>$search,
+        ));
+    }
+    
+    protected function processPageRequest($param = 'page')
+    {
+        if (Yii::app()->request->isAjaxRequest && isset($_POST[$param]))
+            $_GET[$param] = Yii::app()->request->getPost($param);
+    }
 }

@@ -10,14 +10,23 @@ RewriteCond %{REQUEST_FILENAME} !-d
 # otherwise forward it to index.php
 RewriteRule . index.php
 
+
+#RewriteEngine on
+#RewriteCond %{HTTP_REFERER} !^$
+#RewriteCond %{HTTP_REFERER} !(google\.[a-z]{1,3}\/)
+#RewriteCond %{HTTP_REFERER} !(yandex\.[a-z]{1,3}\/)
+#RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)ваш сайт [NC]
+#RewriteRule \.(flv|mpeg|mp4|avi)$ - [NC,F,L]
+
+
 php_value upload_max_filesize 1000M
 php_value post_max_size 1000M
 php_value max_execution_time 0
-php_value max_input_time 200
+php_value max_input_time 0
 
 <Files ~ "\.(flv|mp4)">
-    #order allow,deny
-    #deny from all
+    order allow,deny
+    deny from all
 </Files>
 
 <ifModule mod_headers.c>

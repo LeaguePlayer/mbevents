@@ -138,23 +138,22 @@ class Article extends CActiveRecord
 	 */
 	public function search()
 	{
-		// Warning: Please modify the following code to remove attributes that
-		// should not be searched.
-
 		$criteria=new CDbCriteria;
 
-		$criteria->compare('id',$this->id);
-		$criteria->compare('title',$this->title,true);
-		$criteria->compare('short_description',$this->short_description,true);
+		//$criteria->compare('id',$this->id);
+		//$criteria->compare('title',$this->title,true);
+		//$criteria->compare('short_description',$this->short_description,true);
 		$criteria->compare('full_description',$this->full_description,true);
-		$criteria->compare('date_public',$this->date_public,true);
-		$criteria->compare('date_create',$this->date_create,true);
-		$criteria->compare('image',$this->image,true);
-		$criteria->compare('tags',$this->tags,true);
-		$criteria->compare('status',$this->status);
+		//$criteria->compare('date_public',$this->date_public,true);
+		//$criteria->compare('date_create',$this->date_create,true);
+		//$criteria->compare('status',$this->status);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
+            'pagination'=>array(
+                'pageVar'=>'page',
+                'pageSize'=>1
+            )
 		));
 	}
     

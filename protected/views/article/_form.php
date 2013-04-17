@@ -28,8 +28,10 @@
             $allCategories = Category::getAll();
             foreach ($allCategories as $category) {
                 $checked = $model->belongsToCategory($category->id);
-                echo CHtml::label($category->name, 'Article_categories_'.$category->id);
+                echo CHtml::openTag('div', array('class'=>'row'));
                 echo CHtml::checkBox("Article[categories][{$category->id}]", $checked);
+                echo CHtml::label($category->name, 'Article_categories_'.$category->id);
+                echo CHtml::closeTag('div');
             }
         ?>
     </fieldset>

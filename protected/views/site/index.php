@@ -15,8 +15,10 @@ $this->pageTitle=Yii::app()->name;
 ?>
 
 <?php
+    $this->widget('SiteSearch');
+    
     $this->renderPartial('_loop', array(
         'dataProvider'=>$blogDataProvider,
-        'itemView'=>'_view',
+        'itemView'=>'/article/_view',
     ));
 ?>

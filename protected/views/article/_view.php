@@ -1,51 +1,28 @@
 <?php
-/* @var $this ArticleController */
 /* @var $data Article */
 ?>
 
-<div class="view">
+<?php
+    if ( isset($_GET['searchString']) ) {
+        $searchString = $_GET['searchString'];
+        $pizza = explode('>', $data->short_description);
+        $s = '';
+        for ($i = 0; $i < count($pizza); $i++) {
+            $piece = explode('<', $pizza[$i]);
+            $replace = preg_replace('/('.$searchString.')/i', '<b><span style="background:yellow;">${1}</span></b>', $piece[0]);
+            if (count($piece) == 2) {
+                $s .= $replace.'<'.$piece[1].'>';
+            } else if (count($piece) == 1) {
+                $s .= $replace;
+            }
+        }
+        $data->short_description = $s;
+    }
+?>
 
-	<b><?php echo CHtml::encode($data->getAttributeLabel('id')); ?>:</b>
-	<?php echo CHtml::link(CHtml::encode($data->id), array('view', 'id'=>$data->id)); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('title')); ?>:</b>
-	<?php echo CHtml::encode($data->title); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('short_description')); ?>:</b>
-	<?php echo CHtml::encode($data->short_description); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('full_description')); ?>:</b>
-	<?php echo CHtml::encode($data->full_description); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('date_public')); ?>:</b>
-	<?php echo CHtml::encode($data->date_public); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('date_create')); ?>:</b>
-	<?php echo CHtml::encode($data->date_create); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('image')); ?>:</b>
-	<?php echo CHtml::encode($data->image); ?>
-	<br />
-
-	<?php /*
-	<b><?php echo CHtml::encode($data->getAttributeLabel('tags')); ?>:</b>
-	<?php echo CHtml::encode($data->tags); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('status')); ?>:</b>
-	<?php echo CHtml::encode($data->status); ?>
-	<br />
-
-	<b><?php echo CHtml::encode($data->getAttributeLabel('user_id')); ?>:</b>
-	<?php echo CHtml::encode($data->user_id); ?>
-	<br />
-
-	*/ ?>
-
-</div>
+<article>
+    <h2><?=$data->title;?></h2>
+    <?php
+        echo $data->short_description;
+    ?>
+</article>

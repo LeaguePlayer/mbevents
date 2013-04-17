@@ -9,5 +9,4 @@
 	<div class="preview">
         <div id="player-for-course-<?=$data->id?>" class="player" source="<?=$data->video_preview?>"></div>
     </div>
-
 </div>
