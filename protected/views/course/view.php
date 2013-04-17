@@ -42,17 +42,36 @@
     		<?php echo $form->error($model,'description'); ?>
     	</div>
         
-        <div class="row">
-    		<?php echo $form->labelEx($model,'advanced_cost'); ?>
-    		<?php echo $form->textField($model,'advanced_cost'); ?>
-    		<?php echo $form->error($model,'advanced_cost'); ?>
-    	</div>
+        <fieldset>
+            <legend>Базовая часть</legend>
+            <div class="row">
+        		<?php echo $form->labelEx($model,'basic_cost'); ?>
+        		<?php echo $form->textField($model,'basic_cost'); ?>
+        		<?php echo $form->error($model,'basic_cost'); ?>
+        	</div>
+            
+            <div class="row">
+        		<?php echo $form->labelEx($model,'basic_description'); ?>
+        		<?php echo $form->textArea($model,'basic_description'); ?>
+        		<?php echo $form->error($model,'basic_description'); ?>
+        	</div>
+        </fieldset>
         
-        <div class="row">
-    		<?php echo $form->labelEx($model,'basic_cost'); ?>
-    		<?php echo $form->textField($model,'basic_cost'); ?>
-    		<?php echo $form->error($model,'basic_cost'); ?>
-    	</div>
+        <fieldset>
+            <legend>Расширенная часть</legend>
+            <div class="row">
+        		<?php echo $form->labelEx($model,'advanced_cost'); ?>
+        		<?php echo $form->textField($model,'advanced_cost'); ?>
+        		<?php echo $form->error($model,'advanced_cost'); ?>
+        	</div>
+            
+            <div class="row">
+        		<?php echo $form->labelEx($model,'adv_description'); ?>
+        		<?php echo $form->textArea($model,'adv_description'); ?>
+        		<?php echo $form->error($model,'adv_description'); ?>
+        	</div>
+        </fieldset>
+        
         
     </fieldset>
     

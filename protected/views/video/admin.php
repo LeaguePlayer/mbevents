@@ -4,26 +4,22 @@
 /* @var $form CActiveForm */
 ?>
 
-<div class="form">
-
 <?php
-$form=$this->beginWidget('CActiveForm', array(
-	'id'=>'video-form',
-	'enableAjaxValidation'=>false,
-));
+//$form=$this->beginWidget('CActiveForm', array(
+//	'id'=>'video-form',
+//	'enableAjaxValidation'=>false,
+//));
 ?>
-
-	<div class="row">
 		<?php
-//        $this->widget('xupload.XUpload', array(
-//            'url' => Yii::app()->createUrl("video/upload"),
-//            'model' => $model,
-//            'attribute' => 'file',
-//            'multiple' => true,
-//            'registerBootstrap'=>true,
-//        ));
+        $this->widget('xupload.XUpload', array(
+            'url' => Yii::app()->createUrl("video/upload"),
+            'model' => $model,
+            'attribute' => 'file',
+            'multiple' => true,
+            'registerBootstrap'=>true,
+        ));
         
-            $this->widget('ext.EAjaxUpload.EAjaxUpload', array(
+            /*$this->widget('ext.EAjaxUpload.EAjaxUpload', array(
                 'id'=>'uploadFile',
                 'config'=>array(
                     'action'=>Yii::app()->createUrl('/video/ajaxUpload'),
@@ -42,12 +38,11 @@ $form=$this->beginWidget('CActiveForm', array(
 //                                     ),
 //                    'showMessage'=>"js:function(message){ alert(message); }"
                 )
-            ));
+            ));*/
         ?>
-	</div>
 
 <?php
-    $this->endWidget();
+    //$this->endWidget();
 ?>
 
 <?php
@@ -67,8 +62,6 @@ $this->widget('zii.widgets.grid.CGridView', array(
 	),
 ));
 ?>
-
-</div><!-- form -->
 
 <div id="demo"></div>
 

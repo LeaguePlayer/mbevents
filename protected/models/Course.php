@@ -49,7 +49,7 @@ class Course extends CActiveRecord
 			array('title, video_preview', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-            array('description', 'safe'),
+            array('description, basic_description, adv_description', 'safe'),
 			array('id, category_id, title, video_preview, basic_cost, advanced_cost', 'safe', 'on'=>'search'),
 		);
 	}
@@ -79,7 +79,9 @@ class Course extends CActiveRecord
 			'video_preview' => 'Видео-обзор',
 			'basic_cost' => 'Стоимость базовой части',
 			'advanced_cost' => 'Стоимость расширенной части',
-            'description' => 'Описание'
+            'description' => 'Описание курса',
+            'basic_description' => 'Описание базовой части',
+            'adv_description' => 'Описание расширенной части',
 		);
 	}
 

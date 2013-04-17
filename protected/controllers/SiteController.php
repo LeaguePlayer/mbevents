@@ -37,6 +37,13 @@ class SiteController extends Controller
             ),
         ));
         
+        $coursesData = new CActiveDataProvider('Course', array(
+            'pagination'=>array(
+                'pageSize'=>1,
+                'pageVar' =>$pageVar,
+            ),
+        ));
+        
         if ( Yii::app()->request->isAjaxRequest ) {
             echo $this->renderPartial('_loopAjax', array(
                 'dataProvider'=>$blogDataProvider,
@@ -45,13 +52,12 @@ class SiteController extends Controller
             Yii::app()->end();
         }
         
-        $announce = Announce::findActivated();
-        $courses = Course::model()->findAll();
+        $announce = Announce::model()->findAll();
         
 		$this->render('index', array(
             'blogDataProvider'=>$blogDataProvider,
             'announce'=>$announce,
-            'courses'=>$courses,
+            'coursesData'=>$coursesData,
         ));
 	}
     

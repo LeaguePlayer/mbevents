@@ -146,9 +146,9 @@ class User extends CActiveRecord
         $relations = Yii::app()->getModule('user')->relations;
         if (!isset($relations['profile']))
             $relations['profile'] = array(self::HAS_ONE, 'Profile', 'user_id');
-        $relations['careers'] = array(self::MANY_MANY, 'Career', 'tbl_user_careers(user_id, career_id)');     
+        $relations['careers'] = array(self::MANY_MANY, 'Career', 'tbl_user_careers(user_id, career_id)');
         $relations['categories'] = array(self::MANY_MANY, 'Category', 'tbl_user_categories(user_id, category_id)');
-        $relations['notifyCats'] = array(self::MANY_MANY, 'Category', 'tbl_user_notify_categories(user_id, category_id)');       
+        $relations['notifyCats'] = array(self::MANY_MANY, 'Category', 'tbl_user_notify_categories(user_id, category_id)');
         return $relations;
 	}
 

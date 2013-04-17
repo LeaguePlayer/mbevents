@@ -44,9 +44,9 @@ class VideoController extends Controller
     {
         return array(
             'upload'=>array(
-                'class'=>'xupload.actions.XUploadAction',
-                'path' =>Yii::app() -> getBasePath() . "/../uploads",
-                'publicPath' => Yii::app() -> getBaseUrl() . "/uploads",
+                'class'=>'application.components.actions.UploadAction',
+                'path' =>Yii::app() -> getBasePath() . "/../uploads/videos",
+                'publicPath' => Yii::app() -> getBaseUrl() . "/uploads/videos",
             ),
         );
     }
@@ -132,43 +132,12 @@ class VideoController extends Controller
     
     public function actionOut($alias)
     {
-//        $location = Yii::getPathOfAlias('webroot') . '/uploads/videos/' . $alias;
-//        $filename = $alias;
-//        self::smartReadFile($location, $filename);
-//        header( 'Content-Type: video/x-flv' );
-//        header( 'Content-Length: '.filesize($file) );
-//        readfile($file);
-        
-        //...SQL query to find the path with the id provided, which gives:
-        
         $alias = 'f_003dd8.flv';
-        
-        $location = Yii::getPathOfAlias('webroot') . '/uploads/videos/' . $alias;
-        $file = $alias;
+        $filename = $alias;
+        $location = Yii::getPathOfAlias('webroot') . '/uploads/videos/' . $filename;
         $ctype = "video/x-flv";
-        self::smartReadFile($location, $file);
-               
-//        header("Content-type: " . $ctype);
-//        header("Content-Disposition: inline; filename=$alias");
-//        header("Cache-Control: no-cache, no-store, max-age=0, must-revalidate");
-//        header("Cache-Control: post-check=0, pre-check=0", false);
-//        header("Expires: Mon, 20 Dec 1980 00:00:00 GMT"); // Date dans le passé
-//        header("Pragma: no-cache");
-//        header("Content-Transfer-Encoding: binary");
-//        header("Content-Description: File Transfer");
-//        
-//        @readfile($location) OR die("File not found.");
-        
-//        $fh = fopen($location, "rb") or die("Could not open file: " . $file . "\n");
-//        
-//        while (!feof($fh))
-//        {
-//            print(fread($fh, 16384));
-//        }
-//        fclose($fh);
+        self::smartReadFile($location, $filename);
     }
-    
-    
     
     
             

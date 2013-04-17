@@ -11,14 +11,19 @@ $this->pageTitle=Yii::app()->name;
 ?>
 
 <?php
-    //$this->renderPartial('_courses', array('models'=>$courses));
-?>
-
-<?php
     $this->widget('SiteSearch');
     
     $this->renderPartial('_loop', array(
         'dataProvider'=>$blogDataProvider,
         'itemView'=>'/article/_view',
+        'feed_id'=>'feed_blog',
+    ));
+?>
+
+<?php
+    $this->renderPartial('_loop', array(
+        'dataProvider'=>$coursesData,
+        'itemView'=>'/course/_view',
+        'feed_id'=>'feed_course',
     ));
 ?>

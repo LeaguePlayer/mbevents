@@ -1,4 +1,6 @@
-<div id="feed_content">
+
+<?php $container_id = (isset($feed_id)) ? $feed_id : 'feed_content'; ?>
+<div id="<?=$container_id?>">
     <?php
         $this->widget('zii.widgets.CListView', array(
             'dataProvider'=>$dataProvider,
@@ -18,7 +20,7 @@
 <?php if ($dataProvider->totalItemCount > $dataProvider->pagination->pageSize): ?>
 
     <p id="loading" style="display:none"><img src="<?php echo Yii::app()->request->baseUrl; ?>/images/loading.gif" alt="" /></p>
-    <p id="showMore" style="cursor: pointer; margin-top: 20px; color: #0066CC;">Показать ещё</p>
+    <p class="showMore" style="cursor: pointer; margin-top: 20px; color: #0066CC;">Показать ещё</p>
  
     <script type="text/javascript">
     /*<![CDATA[*/
@@ -28,8 +30,9 @@
             var pageCount = <?php echo (int)$dataProvider->pagination->pageCount; ?>;
  
             var loadingFlag = false;
+            var moreButton = $('#<?=$container_id?>').next().next('.showMore');
  
-            $('#showMore').click(function()
+            moreButton.click(function()
             {
                 if (!loadingFlag) {
                     loadingFlag = true;
@@ -47,9 +50,9 @@
                             loadingFlag = false;                            
  
                             $('#loading').hide();
-                            $('#feed_content').append(data);
+                            $('#<?=$container_id?>').append(data);
                             if (page >= pageCount)
-                                $('#showMore').hide();
+                                moreButton.hide();
                             
                             <?php
                                 if ( isset($successAjaxLoad) ) {
