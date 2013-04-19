@@ -26,14 +26,14 @@ class Controller extends CController
         $cs = Yii::app()->getClientScript();
         
         // fancybox
-        $url = CHtml::asset(Yii::getPathOfAlias('webroot').'/plugins/fancybox/assets').'/fancybox';
+        $fancy_url = CHtml::asset(Yii::getPathOfAlias('webroot').'/plugins/fancybox/assets').'/fancybox';
         $cs->registerCoreScript('jquery');
-        $cs->registerCssFile($url.'/jquery.fancybox.css');
-        $cs->registerScriptFile($url.'/jquery.fancybox.pack.js', CClientScript::POS_END);
+        $cs->registerCssFile($fancy_url.'/jquery.fancybox.css');
+        $cs->registerScriptFile($fancy_url.'/jquery.fancybox.pack.js', CClientScript::POS_END);
         
         // jwplayer
-        $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/plugins/jwplayer/' );
-        Yii::app()->clientScript->registerScriptFile( $url.'/jwplayer.js', CClientScript::POS_END );
+        $jw_url = CHtml::asset( Yii::getPathOfAlias('webroot').'/plugins/jwplayer/' );
+        Yii::app()->clientScript->registerScriptFile( $jw_url.'/jwplayer.js', CClientScript::POS_END );
         
         // flowplayer
 //        $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/plugins/flowplayer/' );
@@ -41,8 +41,22 @@ class Controller extends CController
 //        Yii::app()->clientScript->registerCssFile( $url.'/skin/minimalist.css' );
         
         // global Scripts
-        $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/js/' );
-        Yii::app()->clientScript->registerScriptFile( $url.'/scripts.js', CClientScript::POS_BEGIN );
+        $glob_url = CHtml::asset( Yii::getPathOfAlias('webroot').'/js/' );
+        Yii::app()->clientScript->registerScriptFile( $glob_url.'/scripts.js', CClientScript::POS_END );
+        Yii::app()->clientScript->registerScriptFile( $glob_url.'/jquery.roundabout.min.js', CClientScript::POS_END );
+        Yii::app()->clientScript->registerScriptFile( $glob_url.'/common.js', CClientScript::POS_END );
+        
+        // global Styles
+        $css_url = CHtml::asset( Yii::getPathOfAlias('webroot').'/css/' );
+        Yii::app()->clientScript->registerCssFile( $css_url.'/reset.css' );
+        if ( $this->layout == '//layouts/column1' ) {
+            Yii::app()->clientScript->registerCssFile( $css_url.'/style.css' );
+            Yii::app()->clientScript->registerCssFile( $css_url.'/animation.css' );
+        } else {
+            Yii::app()->clientScript->registerCssFile( $css_url.'/screen.css' );
+            Yii::app()->clientScript->registerCssFile( $css_url.'/main.css' );
+            Yii::app()->clientScript->registerCssFile( $css_url.'/form.css' );
+        }
         
         return true;
     }
