@@ -862,6 +862,7 @@ a {text-decoration: none;}
 #posts{
 	margin-top: 50px;
 	padding-left: 20px;
+	position: relative;
 }
 	#posts article{
 		margin-bottom: 45px;
@@ -909,18 +910,18 @@ a {text-decoration: none;}
 	#posts article .post-date, #posts article .post-views{
 		margin-bottom: 5px;
 	}
-	#posts article .post-date{
+	#posts article .post-date, #post-content .post-date{
 		color: #c3c3c3;
 	}
-	#posts article .post-views{
+	#posts article .post-views, #post-content .post-views{
 		padding-left: 20px;
 		color: #c3c3c3;
-		background: no-repeat left center url('../images/see.gif');
+		background: no-repeat left center url('../images/post_see.png');
 	}
-	#posts article .post-comments{
+	#posts article .post-comments, #post-content .post-comments{
 		padding-left: 20px;
 		color: #388ebe;
-		background: no-repeat left center url('../images/comment.gif');
+		background: no-repeat left center url('../images/post_comments.png');
 	}
 	#posts .progress{
 		text-align: center;
