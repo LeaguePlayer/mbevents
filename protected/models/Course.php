@@ -64,6 +64,9 @@ class Course extends CActiveRecord
 		return array(
             'category'=>array(self::BELONGS_TO, 'Category', 'category_id', 'order'=>'category.name'),
             'lessons'=>array(self::HAS_MANY, 'Lesson', 'course_id', 'order'=>'lessons.data_sort'),
+            'countLessons'=>array(self::STAT, 'Lesson', 'course_id', 'select'=>'count(*)'),
+            //'countPayLessons'=>array(self::STAT, 'Lesson', 'course_id',
+            //    'select'=>'count(*)', 'scopes'=>array('pay_bsic', 'pay_advanced')),
 		);
 	}
 
@@ -133,4 +136,37 @@ class Course extends CActiveRecord
         }
         parent::afterDelete();
     }
+    
+    public function getCountAvailableLessons()
+    {
+        $lessonsCount = $this->countLessons(array('scopes'=>'free_basic'));
+        $user = UserModule::user();
+        if ( !$user ) {
+            return $lessonsCount;
+        }
+        $r_courses = $user->r_courses(array('condition'=>'r_courses.course_id='.$this->id));
+        foreach ($r_courses as $r_course) {
+            switch ( $r_course->level ) {
+                case UserCourses::LEVEL_BASIC:
+                    $lessonsCount += $r_course->course->$this->countLessons(array('scopes'=>'pay_basic'));
+                    // break убрал, так как расширенный уровень включает в себя базовый
+                case UserCourses::LEVEL_ADVANCED:
+                    $lessonsCount += $r_course->course->$this->countLessons(array('scopes'=>'pay_advanced'));
+                    break;
+                default:
+                    continue;
+            }
+        }
+        return $lessonsCount;
+    }
+    
+//    public function checkBasicAccess()
+//    {
+//        
+//    }
+//    
+//    public function checkAdvancedAccess()
+//    {
+//        
+//    }
 }

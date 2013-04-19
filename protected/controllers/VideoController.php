@@ -130,19 +130,21 @@ class VideoController extends Controller
     }
     
     
-    public function actionOut($alias)
+    public function actionOut()
     {
-        $alias = 'f_003dd8.flv';
-        $filename = $alias;
-        $location = Yii::getPathOfAlias('webroot') . '/uploads/videos/' . $filename;
+        $alias = Yii::app()->request->getQuery('alias');
+        $lesson = Lesson::model()->findByAttributes(array('alias'=>$alias));
+        $pathinfo = pathinfo($lesson->source);
+        $location = Yii::getPathOfAlias('webroot') .'/uploads/videos/zakryityie_prodaji_7.mp4'; //$lesson->source;
         $ctype = "video/x-flv";
-        self::smartReadFile($location, $filename);
+        
+        self::smartReadFile($location, 'zakryityie_prodaji_7.mp4', $ctype);
     }
     
     
             
-    public static function smartReadFile($location, $filename, $mimeType = 'video/x-flv')
-    {
+    public static function smartReadFile($location, $filename, $mimeType = 'video/mp4')
+    {        
         if(!file_exists($location))
         { header ("HTTP/1.0 404 Not Found");
             return;
@@ -161,7 +163,7 @@ class VideoController extends Controller
         $end=$size;
         
         if(isset($_SERVER['HTTP_RANGE']))
-        { 
+        {
             if(preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $_SERVER['HTTP_RANGE'], $matches))
             {
                 $begin=intval($matches[0]);

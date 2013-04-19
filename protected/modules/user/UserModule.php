@@ -233,7 +233,7 @@ class UserModule extends CWebModule
 	 */
 	public static function user($id=0,$clearCache=false) {
         if (!$id&&!Yii::app()->user->isGuest)
-            $id = Yii::app()->user->id;
+            $id = Yii::app()->user->id;        
 		if ($id) {
             if (!isset(self::$_users[$id])||$clearCache)
                 self::$_users[$id] = User::model()->with(array('profile'))->findbyPk($id);

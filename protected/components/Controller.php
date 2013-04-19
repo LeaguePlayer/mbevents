@@ -35,6 +35,11 @@ class Controller extends CController
         $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/plugins/jwplayer/' );
         Yii::app()->clientScript->registerScriptFile( $url.'/jwplayer.js', CClientScript::POS_END );
         
+        // flowplayer
+//        $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/plugins/flowplayer/' );
+//        Yii::app()->clientScript->registerScriptFile( $url.'/flowplayer.min.js', CClientScript::POS_BEGIN );
+//        Yii::app()->clientScript->registerCssFile( $url.'/skin/minimalist.css' );
+        
         // global Scripts
         $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/js/' );
         Yii::app()->clientScript->registerScriptFile( $url.'/scripts.js', CClientScript::POS_BEGIN );

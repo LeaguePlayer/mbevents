@@ -24,8 +24,15 @@ function PlayersManager() {
             image: '',
         }, settings || {});
         
+        console.log(settings);
+        
         var manager = this;        
-        jwplayer(s.element).setup({ file: s.source, image: s.image });
+        jwplayer(s.element).setup({
+            file: s.source,
+            image: s.image,
+            provider: 'video',
+            write: 'mediaspace',
+        });
         jwplayer(s.element).onPlay(function() {
             manager.pausePlayers(s.element);
         });

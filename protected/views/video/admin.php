@@ -66,13 +66,13 @@ $this->widget('zii.widgets.grid.CGridView', array(
 <div id="demo"></div>
 
 <script>
-//    $(document).ready(function() {
-//        jwplayer('demo').setup({
-//            file: 'out/f_003dd8.flv',
-//            provider: 'video',
-//            write: 'mediaspace',
-//        });
-//    });
+    $(document).ready(function() {
+        jwplayer('demo').setup({
+            file: '/video/out/f_003dd8.flv',
+            provider: 'video',
+            write: 'mediaspace',
+        });
+    });
 </script>
                                      
 

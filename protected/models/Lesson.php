@@ -56,8 +56,9 @@ class Lesson extends CActiveRecord
 		return array(
 			array('name, source, date_public', 'required'),
 			array('course_id', 'numerical', 'integerOnly'=>true),
-            array('source', 'CVideoValidator', 'types'=>'flv, avi, mpeg'),
+            array('source', 'CVideoValidator', 'types'=>'flv, avi, mpeg, mp4'),
 			array('source, name', 'length', 'max'=>255),
+            array('description', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, name, source, course_id, date_create, date_public', 'safe', 'on'=>'search'),
@@ -129,13 +130,13 @@ class Lesson extends CActiveRecord
         if ( !empty($this->date_public) ) {
             $this->date_public = date('d.m.Y', strtotime($this->date_public));
         }
-        
     }
     
     protected function beforeSave()
     {
         if ( parent::beforeSave() ) {
             $this->date_public = date('Y-m-d', strtotime($this->date_public));
+            $this->alias = substr( md5($this->source.time()), 0, 9 );
             return true;
         }
         return false;
@@ -144,5 +145,10 @@ class Lesson extends CActiveRecord
     public static function getAll()
     {
         return self::model()->findAll('course_id=0');
+    }
+    
+    public function getUrl()
+    {
+        return Yii::app()->urlManager->createUrl('/video/out', array('alias'=>$this->alias));
     }
 }

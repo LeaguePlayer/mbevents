@@ -28,6 +28,7 @@ class CVideoValidator extends CValidator
             $mime = finfo_file($finfo, Yii::getPathOfAlias('webroot').$file);
             
             $mimeTypes = array(
+                "mp4" => "video/mp4",
                 "mpeg" => "video/mpeg", 
                 "mpg" => "video/mpeg", 
                 "mpe" => "video/mpeg", 

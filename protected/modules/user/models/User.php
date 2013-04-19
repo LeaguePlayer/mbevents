@@ -149,6 +149,7 @@ class User extends CActiveRecord
         $relations['careers'] = array(self::MANY_MANY, 'Career', 'tbl_user_careers(user_id, career_id)');
         $relations['categories'] = array(self::MANY_MANY, 'Category', 'tbl_user_categories(user_id, category_id)');
         $relations['notifyCats'] = array(self::MANY_MANY, 'Category', 'tbl_user_notify_categories(user_id, category_id)');
+        $relations['r_courses'] = array(self::HAS_MANY, 'UserCourses', 'user_id');
         return $relations;
 	}
 

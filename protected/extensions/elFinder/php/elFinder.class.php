@@ -1226,6 +1226,8 @@ class elFinder {
 	 **/
 	protected function _checkName($n)
 	{
+        $n = Functions::translit($n);
+        
 		$n = strip_tags(trim($n));
 		if (!$this->_options['dotFiles'] && '.' == substr($n, 0, 1)) {
 			return false;
