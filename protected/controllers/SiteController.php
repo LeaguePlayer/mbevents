@@ -52,12 +52,14 @@ class SiteController extends Controller
             Yii::app()->end();
         }
         
-        $announce = Announce::model()->findAll();
+        $announce = Announce::model()->findActivated();
+        $eventForm = new RegistrationEventForm;
         
 		$this->render('index', array(
             'blogDataProvider'=>$blogDataProvider,
             'announce'=>$announce,
             'coursesData'=>$coursesData,
+            'eventForm'=>$eventForm,
         ));
 	}
     
@@ -80,4 +82,12 @@ class SiteController extends Controller
 				$this->render('error', $error);
 		}
 	}
+    
+    public function actionRegistrationOnEvent()
+    {
+        $model = new RegistrationEventForm;
+        echo CJavaScript::jsonEncode(array(
+            'success'=>false
+        ));
+    }
 }

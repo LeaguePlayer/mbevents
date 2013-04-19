@@ -29,7 +29,6 @@ class AnnounceComponentController extends Controller
 	}
     
     
-    
 	public function actionCreate($typeId, $announceId, $backUrl = false)
 	{
         $controller = AnnounceComponentFactory::CreateController($typeId);

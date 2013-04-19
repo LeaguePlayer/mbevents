@@ -114,4 +114,13 @@ class Announce extends CActiveRecord
     {
         return Announce::model()->find('activated=1');
     }
+    
+    public function render()
+    {
+        list($controller) = Yii::app()->createController('announce');
+        if ($controller)
+        {
+            echo $controller->renderPartial('_frontview', array('model'=>$this));
+        }
+    }
 }

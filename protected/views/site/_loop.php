@@ -1,6 +1,9 @@
 
 <?php $container_id = (isset($feed_id)) ? $feed_id : 'feed_content'; ?>
-<div id="<?=$container_id?>">
+<section id="<?=$container_id?>">
+    <? if ($totalCount!==null): ?>
+        <div class="counter"><?=$totalCount;?></div>
+    <? endif; ?>
     <?php
         $this->widget('zii.widgets.CListView', array(
             'dataProvider'=>$dataProvider,
@@ -15,12 +18,13 @@
             )
         ));
     ?>
-</div>
 
 <?php if ($dataProvider->totalItemCount > $dataProvider->pagination->pageSize): ?>
 
-    <p id="loading" style="display:none"><img src="<?php echo Yii::app()->request->baseUrl; ?>/images/loading.gif" alt="" /></p>
-    <p class="showMore" style="cursor: pointer; margin-top: 20px; color: #0066CC;">Показать ещё</p>
+    <div class="progress">
+		<img class="loop" src="/images/post_progress.gif" alt="">
+		<a href="#more" class="showMore">Хочу еще!</a>
+	</div>
  
     <script type="text/javascript">
     /*<![CDATA[*/
@@ -30,13 +34,14 @@
             var pageCount = <?php echo (int)$dataProvider->pagination->pageCount; ?>;
  
             var loadingFlag = false;
-            var moreButton = $('#<?=$container_id?>').next().next('.showMore');
+            var moreButton = $('#<?=$container_id?>').find('.showMore');
+            var loader = $('#<?=$container_id?>').find('.loop').hide();
  
             moreButton.click(function()
             {
                 if (!loadingFlag) {
                     loadingFlag = true;
-                    $('#loading').show();
+                    loader.show();
                     $.ajax({
                         type: 'POST',
                         url: window.location.href,
@@ -49,8 +54,8 @@
                             page++;                            
                             loadingFlag = false;                            
  
-                            $('#loading').hide();
-                            $('#<?=$container_id?>').append(data);
+                            loader.hide();
+                            moreButton.parents('.progress').before(data);
                             if (page >= pageCount)
                                 moreButton.hide();
                             
@@ -59,14 +64,14 @@
                                     echo CJavaScript::encode(new CJavaScriptExpression($successAjaxLoad), true);
                                 }
                             ?>
-                            
                         }
                     });
                 }
                 return false;
-            })
+            });
         })(jQuery);
     /*]]>*/
     </script>
  
 <?php endif; ?>
+</section>

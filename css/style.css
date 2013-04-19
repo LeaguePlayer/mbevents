@@ -21,7 +21,7 @@ a {text-decoration: none;}
 		margin-bottom: 15px;
 		text-align: center;
 	}
-.required{
+span.required{
 	color: #22aee5;
 }
 /*
@@ -564,7 +564,8 @@ a {text-decoration: none;}
 		color: #bfbfbf;
 		font-size: 14px;
 		font-style: italic;
-		margin-top: 20px;
+		margin-top: 10px;
+        margin-bottom: 20px;
 		width: 200px;
 		float: left;
 		line-height: 1.3;
@@ -609,8 +610,9 @@ a {text-decoration: none;}
 	}
 	#seminarium .sp .text{
 		color: #4b4b4b;
-		line-height: 1.7;
-		margin-top: 20px;
+		line-height: 1.4;
+		margin-top: 10px;
+        margin-bottom: 20px;
 	}
 	#seminarium .sp-image{
 		width: 46px;
@@ -797,7 +799,8 @@ a {text-decoration: none;}
 		width: 80%;
 		color: #bababa;
 	}
-	.reg-event-form .row .focus{
+	.reg-event-form .row .focus,
+    .reg-event-form .row input[type=text]:focus{
 		background-color: #f8f8f8;
 		color: #000;
 		-webkit-box-shadow:  0px 0px 7px 0px #22aee5;

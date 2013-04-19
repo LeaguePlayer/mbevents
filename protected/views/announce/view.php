@@ -27,7 +27,6 @@
     <div id="components_panel">
         <?php foreach ($model->components as $component): ?>
             <div id="component-<?=$component->id.'_'.$component->getTypeId();?>" class="component_container">
-                <?php echo $component->getTitle(); ?>
                 <?php $component->render(); ?>
                 <a href="javascript:;" class="delete_component" component_id="<?=$component->id;?>" component_type="<?=$component->typeId;?>">Удалить</a>
                 <a href="<?=$this->createUrl('/announceComponent/update', array(
