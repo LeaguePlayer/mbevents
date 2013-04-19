@@ -205,4 +205,5 @@ $this->pageTitle=Yii::app()->name;
 //        'itemView'=>'/course/_view',
 //        'feed_id'=>'feed_course',
 //    ));
+//
 ?>

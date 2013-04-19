@@ -98,8 +98,8 @@ $(function(){
 		$('body').append(dark);
 		return dark.fadeIn('fast');
 	}
-
-	//Подгрузка блога
+    
+    //Подгрузка блога
 	$('#posts article').delegate('a', 'click', function(e){
 		if(!$(this).closest('article').hasClass('show')){
 			var dark = showDark();
@@ -118,7 +118,17 @@ $(function(){
 			contentBox.animate({width: widthBox, left: offset.left - widthBox - 60}, 'slow');
 
 			//Здесь нужен ajax
-			contentBox.html($('#copy').html());
+            $.ajax({
+                url: '/article/load',
+                type: 'GET',
+                data: {
+                    id: article.data('id'),
+                },
+                success: function(data) {
+                    contentBox.html(data);
+                }
+            });
+			//contentBox.html($('#copy').html());
 
 			//$(this).click(function(){return false;});
 			//не пускаем пузырьки выше

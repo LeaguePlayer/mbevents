@@ -28,7 +28,7 @@ class ArticleController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','view','search'),
+				'actions'=>array('index','view','search','load'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -248,5 +248,18 @@ class ArticleController extends Controller
     {
         if (Yii::app()->request->isAjaxRequest && isset($_POST[$param]))
             $_GET[$param] = Yii::app()->request->getPost($param);
+    }
+    
+    
+    public function actionLoad($id)
+    {
+        $model = Article::model()->findByPk($id);
+        if ( !$model ) {
+            throw new CHttpException(404);
+        }
+        echo $this->renderPartial('_load', array(
+            'model'=>$model,
+        ));
+        Yii::app()->end();
     }
 }
