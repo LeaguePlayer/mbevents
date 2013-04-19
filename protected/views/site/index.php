@@ -156,6 +156,9 @@ $this->pageTitle=Yii::app()->name;
             'itemView'=>'/article/_view',
             'feed_id'=>'posts',
             'totalCount'=>$blogDataProvider->totalItemCount.' '.Functions::plurar($blogDataProvider->totalItemCount, array('материал','материала','материалов')),
+            'successAjaxLoad'=>"
+                onLoadBlog();
+            "
         ));?>
 	</aside>
 	<div class="clear"></div>

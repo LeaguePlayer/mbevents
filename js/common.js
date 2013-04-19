@@ -84,40 +84,90 @@ $(function(){
 	$('#top-header #hide-btn').click(function(){
 		hideHeader();
 	});
-
-	function showDark(){
-		var dark = $('#dark-side');
-		if(dark.length == 0){
-			dark = $('<div id="dark-side"><div class="content-box"></div></div>');
-		}
-		var docWidth = $(document).width();
-		var docHeight = $(document).height();
-
-		dark.width(docWidth).height(docHeight);
-
-		$('body').append(dark);
-		return dark.fadeIn('fast');
-	}
     
     //Подгрузка блога
-	$('#posts article').delegate('a', 'click', function(e){
-		if(!$(this).closest('article').hasClass('show')){
-			var dark = showDark();
-			var widthBox = 740;
+	//$('#posts article').delegate('a', 'click', function(e){
+//		if(!$(this).closest('article').hasClass('show')){
+//			var dark = showDark();
+//			var widthBox = 740;
+//
+//			var contentBox = dark.find('.content-box');
+//			var article = $(this).closest('article');
+//
+//			var position = article.position();
+//			article.addClass('show').css({top: position.top - 20});
+//			
+//			var offset = article.offset();
+//			
+//			contentBox.css({top: offset.top});
+//			//contentBox.height(article.outerHeight() - 80);
+//			contentBox.animate({width: widthBox, left: offset.left - widthBox - 60}, 'slow');
+//
+//			//Здесь нужен ajax
+//            $.ajax({
+//                url: '/article/load',
+//                type: 'GET',
+//                data: {
+//                    id: article.data('id'),
+//                },
+//                success: function(data) {
+//                    contentBox.html(data);
+//                }
+//            });
+//			//contentBox.html($('#copy').html());
+//
+//			//$(this).click(function(){return false;});
+//			//не пускаем пузырьки выше
+//			contentBox.on('click', function(event){
+//				event.stopPropagation();
+//			});
+//		}
+//	});
 
-			var contentBox = dark.find('.content-box');
-			var article = $(this).closest('article');
+	//Скрываем темную область при клике
+	$('body').delegate('#dark-side', 'click', function(e){
+		$(this).fadeOut('fast');
+		$('#posts article').removeClass('show');
+		$(this).remove();
+	});
+    
+    onLoadBlog();
+});
 
-			var position = article.position();
-			article.addClass('show').css({top: position.top - 20});
-			
-			var offset = article.offset();
-			
-			contentBox.css({top: offset.top});
-			//contentBox.height(article.outerHeight() - 80);
-			contentBox.animate({width: widthBox, left: offset.left - widthBox - 60}, 'slow');
+function showDark(){
+	var dark = $('#dark-side');
+	if(dark.length == 0){
+		dark = $('<div id="dark-side"><div class="content-box"></div></div>');
+	}
+	var docWidth = $(document).width();
+	var docHeight = $(document).height();
 
-			//Здесь нужен ajax
+	dark.width(docWidth).height(docHeight);
+
+	$('body').append(dark);
+	return dark.fadeIn('fast');
+}
+
+function onLoadBlog()
+{
+    $('#posts article').on( 'click', 'a', function(e){
+    	if(!$(this).closest('article').hasClass('show')){
+    		var dark = showDark();
+    		var widthBox = 740;
+    
+    		var contentBox = dark.find('.content-box');
+    		var article = $(this).closest('article');
+    
+    		var position = article.position();
+    		article.addClass('show').css({top: position.top - 20});
+    		
+    		var offset = article.offset();
+    		
+    		contentBox.css({top: offset.top});
+    		//contentBox.height(article.outerHeight() - 80);
+    		contentBox.animate({width: widthBox, left: offset.left - widthBox - 60}, 'slow');
+    
+    		//Здесь нужен ajax
             $.ajax({
                 url: '/article/load',
                 type: 'GET',
@@ -128,20 +178,13 @@ $(function(){
                     contentBox.html(data);
                 }
             });
-			//contentBox.html($('#copy').html());
-
-			//$(this).click(function(){return false;});
-			//не пускаем пузырьки выше
-			contentBox.on('click', function(event){
-				event.stopPropagation();
-			});
-		}
-	});
-
-	//Скрываем темную область при клике
-	$('body').delegate('#dark-side', 'click', function(e){
-		$(this).fadeOut('fast');
-		$('#posts article').removeClass('show');
-		$(this).remove();
-	});
-});
+    		//contentBox.html($('#copy').html());
+    
+    		//$(this).click(function(){return false;});
+    		//не пускаем пузырьки выше
+    		contentBox.on('click', function(event){
+    			event.stopPropagation();
+    		});
+    	}
+    });
+};
