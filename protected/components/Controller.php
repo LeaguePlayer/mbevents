@@ -49,8 +49,8 @@ class Controller extends CController
         // global Styles
         $css_url = CHtml::asset( Yii::getPathOfAlias('webroot').'/css/' );
         Yii::app()->clientScript->registerCssFile( $css_url.'/reset.css' );
+        Yii::app()->clientScript->registerCssFile( $css_url.'/style.css' );
         if ( $this->layout == '//layouts/column1' ) {
-            Yii::app()->clientScript->registerCssFile( $css_url.'/style.css' );
             Yii::app()->clientScript->registerCssFile( $css_url.'/animation.css' );
         } else {
             Yii::app()->clientScript->registerCssFile( $css_url.'/screen.css' );
