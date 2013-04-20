@@ -68,9 +68,11 @@ $this->widget('zii.widgets.grid.CGridView', array(
 <script>
     $(document).ready(function() {
         jwplayer('demo').setup({
-            file: '/video/out/f_003dd8.flv',
-            provider: 'video',
-            write: 'mediaspace',
+            file: '/video/out/da20be349.mp4',
+            width: 800,
+            height: 600,
+            provider: 'rtmp',
+            //write: 'mediaspace',
         });
     });
 </script>

@@ -77,6 +77,8 @@ class VideoController extends Controller
         Yii::import("xupload.models.XUploadForm");
         $model = new XUploadForm;
         
+        $this->layout = '//layouts/column2';
+        
         $this->render('admin', array(
             'dataProvider'=>$dataProvider,
             'model'=>$model
@@ -135,15 +137,15 @@ class VideoController extends Controller
         $alias = Yii::app()->request->getQuery('alias');
         $lesson = Lesson::model()->findByAttributes(array('alias'=>$alias));
         $pathinfo = pathinfo($lesson->source);
-        $location = Yii::getPathOfAlias('webroot') .'/uploads/videos/zakryityie_prodaji_7.mp4'; //$lesson->source;
-        $ctype = "video/mp4";
+        $location = Yii::getPathOfAlias('webroot') . $lesson->source;
+        $mimeType = "video/mp4";
         
-        self::smartReadFile($location, 'zakryityie_prodaji_7.mp4', $ctype);
+        self::smartReadFile($location, $pathinfo['basename'], $mimeType);
     }
     
     
             
-    public static function smartReadFile($location, $filename, $mimeType = 'video/mp4')
+    public static function smartReadFile($location, $filename, $mimeType)
     {        
         if(!file_exists($location))
         { header ("HTTP/1.0 404 Not Found");
