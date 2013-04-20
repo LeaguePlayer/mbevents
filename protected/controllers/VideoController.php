@@ -136,10 +136,13 @@ class VideoController extends Controller
     {
         $alias = Yii::app()->request->getQuery('alias');
         $lesson = Lesson::model()->findByAttributes(array('alias'=>$alias));
+        if ( !$lesson ) {
+            return;
+        }
+        print_r($lesson->source);die();
         $pathinfo = pathinfo($lesson->source);
         $location = Yii::getPathOfAlias('webroot') . $lesson->source;
         $mimeType = "video/mp4";
-        
         self::smartReadFile($location, $pathinfo['basename'], $mimeType);
     }
     
