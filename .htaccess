@@ -25,8 +25,8 @@ php_value max_execution_time 0
 php_value max_input_time 0
 
 <Files ~ "\.(flv|mp4)">
-    #order allow,deny
-    #deny from all
+    order allow,deny
+    deny from all
 </Files>
 
 <ifModule mod_headers.c>
