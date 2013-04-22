@@ -13,6 +13,8 @@
  */
 class Lesson extends CActiveRecord
 {
+    const MAX_VIEWS_VALUE = 60;
+    
     public function scopes()
     {
         return array(
@@ -57,7 +59,8 @@ class Lesson extends CActiveRecord
 			array('name, source, date_public', 'required'),
 			array('course_id', 'numerical', 'integerOnly'=>true),
             array('source', 'CVideoValidator', 'types'=>'flv, avi, mpeg, mp4'),
-			array('source, name', 'length', 'max'=>255),
+            array('poster', 'CImageValidator', 'types'=>'jpeg, jpg, png, gif'),
+			array('source, name, poster', 'length', 'max'=>255),
             array('description', 'safe'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
@@ -73,6 +76,9 @@ class Lesson extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'user_access'=>array(self::HAS_MANY, 'UserLessons', 'lesson_id'),
+            'course'=>array(self::BELONGS_TO, 'Course', 'course_id'),
+            'sources'=>array(self::HAS_MANY, 'Source', 'owner_id', 'condition'=>'owner_type='.Source::OWNER_TYPE_LESSON),
 		);
 	}
 
@@ -89,6 +95,8 @@ class Lesson extends CActiveRecord
 			'date_create' => 'Дата создания',
             'date_update' => 'Дата последнего изменения',
 			'date_public' => 'Дата публикации',
+            'poster' => 'Постер к видео-уроку',
+            'description' => 'Комментарий к курсу'
 		);
 	}
 
@@ -149,6 +157,138 @@ class Lesson extends CActiveRecord
     
     public function getUrl()
     {
+        return Yii::app()->urlManager->createUrl('/lesson/view', array('id'=>$this->id));
+    }
+    
+    public function getMediaUrl()
+    {
         return Yii::app()->urlManager->createUrl('/video/out', array('alias'=>$this->alias));
+    }
+    
+    
+    public function getUserViews()
+    {
+        $user = Yii::app()->user->model();
+        if ( !$user ) {
+            return 0;
+        }
+        $r_lessons = $user->r_lessons(array('condition'=>'r_lessons.lesson_id='.$this->id));
+        foreach ($r_lessons as $r_lesson) {
+            return $r_lesson->current_views;
+        }
+    }
+    
+    public function updateViewsCounter()
+    {
+        $this->updateCounters(array('views'=>1));
+        $user = Yii::app()->user->model();
+        if ( !$user ) {
+            return false;
+        }
+        $r_lessons = $user->r_lessons(array('condition'=>'r_lessons.lesson_id='.$this->id));
+        foreach ($r_lessons as $r_lesson) {
+            $r_lesson->updateCounters(array('current_views'=>1));
+            if ($r_lesson->current_views >= $r_lesson->max_views) {
+                $r_lesson->update(array('available'=>false));
+            }
+        }
+    }
+    
+    public function isFree()
+    {
+        return $this->course_type == Course::BLOCK_TYPE_FREE_BASIC;
+    }
+    
+    public function isPayBasic()
+    {
+        return $this->course_type == Course::BLOCK_TYPE_PAY_BASIC;
+    }
+    
+    public function isPayAdvanced()
+    {
+        return $this->course_type == Course::BLOCK_TYPE_PAY_ADVANCED;
+    }
+    
+    public function allowAccess()
+    {
+        if ( Yii::app()->user->isGuest ) {
+            return false;
+        }
+        $userLesson = UserLessons::model()->findByAttributes(array(
+            'user_id'=>Yii::app()->user->id,
+            'lesson_id'=>$this->id,
+        ));
+        if ( !$userLesson ) {
+            $userLesson = new UserLessons;
+        }
+        $userLesson->user_id = Yii::app()->user->id;
+        $userLesson->lesson_id = $this->id;
+        $userLesson->max_views = UserLessons::MAX_VIEWS_VALUE;
+        $userLesson->current_views = 0;
+        $userLesson->date_close = date('Y-m-d', strtotime('+365 days'));
+        $userLesson->alias = $this->alias;
+        $userLesson->available = true;
+        if ( $userLesson->save() ) {
+            $userCourses = UserCourses::model()->findByAttributes(array(
+                'user_id'=>Yii::app()->user->id,
+                'course_id'=>$this->course->id,
+            ));
+            if (!$userCourses) {
+                $userCourses = new UserCourses;
+                $userCourses->ref_count = 0;
+            }
+            $userCourses->user_id = Yii::app()->user->id;
+            $userCourses->course_id = $this->course->id;
+            $userCourses->level = $this->course_type;
+            $userCourses->available = true;
+            $userCourses->ref_count += 1;
+            $userCourses->save();
+        };
+    }
+    
+    public function denyAccess()
+    {
+        if ( Yii::app()->user->isGuest ) {
+            return false;
+        }
+        $userLesson = UserLessons::model()->findByAttributes(array(
+            'user_id'=>Yii::app()->user->id,
+            'lesson_id'=>$this->id,
+        ));
+        if ( !$userLesson ) {
+            return false;
+        }
+        $userLesson->available = false;
+        $userLesson->save();
+        $userCourses = UserCourses::model()->findByAttributes(array(
+            'user_id'=>Yii::app()->user->id,
+            'course_id'=>$this->course->id,
+        ));
+        if ($userCourses) {
+            $userCourses->ref_count -= 1;
+            if ($userCourses->ref_count == 0) {
+                $userCourses->available = false;
+            }
+            $userCourses->save();
+        }
+    }
+    
+    public function isAvailable()
+    {
+        if ( !$this->isFree() ) {
+            $user = Yii::app()->user->model();
+            if ( !$user ) {
+                return false;
+            }
+            $userLessons = $user->r_lessons(array(
+                'condition'=>'r_lessons.lesson_id=:l_id AND r_lessons.available=1',
+                'params'=>array(':l_id'=>$this->id),
+            ));
+            $isAvailable = ( count($userLessons) > 0 );
+            if ( !$isAvailable ) {
+                return false;
+            }
+        }
+        return true;
     }
 }

@@ -28,15 +28,15 @@ class LessonController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index'),
+				'actions'=>array('index', 'view'),
 				'users'=>array('*'),
 			),
-			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update'),
-				'users'=>array('admin'),
-			),
+//			array('allow', // allow authenticated user to perform 'create' and 'update' actions
+//				'actions'=>array('view'),
+//				'users'=>array('@'),
+//			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
+				'actions'=>array('admin','delete','create','update'),
 				'users'=>array('admin'),
 			),
 			array('deny',  // deny all users
@@ -150,4 +150,16 @@ class LessonController extends Controller
 			Yii::app()->end();
 		}
 	}
+    
+    public function actionView()
+    {
+        $id = Yii::app()->request->getQuery('id');
+        $model = Lesson::model()->with('user_access')->findByPk($id);
+        $model->updateViewsCounter();
+        if ( Yii::app()->request->isAjaxRequest ) {
+            echo $this->renderPartial('_view', array('model'=>$model));
+            Yii::app()->end();
+        }
+        $this->render('_view', array('model'=>$model));
+    }
 }

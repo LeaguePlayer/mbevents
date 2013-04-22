@@ -15,7 +15,7 @@ RewriteRule . index.php
 #RewriteCond %{HTTP_REFERER} !^$
 #RewriteCond %{HTTP_REFERER} !(google\.[a-z]{1,3}\/)
 #RewriteCond %{HTTP_REFERER} !(yandex\.[a-z]{1,3}\/)
-#RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)ваш сайт [NC]
+#RewriteCond %{HTTP_REFERER} !^http(s)?://(www\.)mbevents.loc [NC]
 #RewriteRule \.(flv|mpeg|mp4|avi)$ - [NC,F,L]
 
 

@@ -23,7 +23,7 @@
 <article data-id="<?=$data->id?>">
     <div class="title-photo">
 		<h3><a href="#post"><?=$data->categories[0]->name;?></a></h3>
-		<a href="#post"><img src="/images/tmp/post_img.jpg" alt="" width="215" height="127"></a>
+		<a href="#post"><img src="/uploads/previews/<?=$data->image?>" alt="" width="215"></a>
 	</div>
 	<div>
 		<div class="post-info">
@@ -31,7 +31,7 @@
 			<p><?=Functions::extractIntro($data->short_description, 100, '...');?></p>
 		</div>
 		<div class="stat">
-			<div class="post-date"><?=date('j F Y', $data->date_public)?></div>
+			<div class="post-date"><?=date('j F Y', strtotime($data->date_public))?></div>
 			<div class="post-views">0</div>
 			<div class="post-comments">0</div>
 		</div>

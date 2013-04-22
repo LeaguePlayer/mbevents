@@ -152,7 +152,7 @@ class Article extends CActiveRecord
 			'criteria'=>$criteria,
             'pagination'=>array(
                 'pageVar'=>'page',
-                'pageSize'=>1
+                'pageSize'=>10
             )
 		));
 	}
@@ -236,8 +236,11 @@ class Article extends CActiveRecord
     {
         $fileInfo = pathinfo($uploadFile->name);
         $fileName = time().'-'.md5($uploadFile->name.time()).'.'.$fileInfo['extension'];
-        $savePath = Yii::getPathOfAlias('webroot').'/uploads/'.$fileName;
+        $savePath = Yii::getPathOfAlias('webroot').'/uploads/previews/'.$fileName;
         if ( $uploadFile->saveAs($savePath) ) {
+            
+            
+            
             $this->image = $fileName;
             return true;
         }

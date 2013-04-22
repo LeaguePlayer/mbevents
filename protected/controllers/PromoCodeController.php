@@ -15,7 +15,7 @@ class PromoCodeController extends Controller
 	{
 		return array(
 			'accessControl', // perform access control for CRUD operations
-			'postOnly + delete, generate', // we only allow deletion via POST request
+			'postOnly + delete, generate, enter', // we only allow deletion via POST request
 		);
 	}
 
@@ -28,11 +28,11 @@ class PromoCodeController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index'),
-				'users'=>array('@'),
+				'actions'=>array('enter'),
+				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('generate'),
+				'actions'=>array('generate', 'index'),
 				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
@@ -134,4 +134,77 @@ class PromoCodeController extends Controller
 			Yii::app()->end();
 		}
 	}
+    
+    
+    public function actionEnter()
+    {        
+        $modelForm = new PromoCodeForm;
+        $response = array(
+            'success'=>false,
+            'errors'=>array(),
+        );
+        
+        if ( isset($_POST['PromoCodeForm']) ) {
+            $modelForm->setAttributes($_POST['PromoCodeForm']);
+            $validProcess = $modelForm->validate();
+            if ( !$validProcess ) {
+                $response['errors'] = array_merge($response['errors'], $modelForm->errors);
+            }
+            
+            if ( Yii::app()->user->isGuest AND isset($_POST['RegistrationForm']) ) {
+                // Зарегистрировать и авторизовать пользователя
+                $regModel = new RegistrationForm('quick');
+                $regModel->setAttributes($_POST['RegistrationForm']);
+                
+                if ( !$regModel->validate() ) {
+                    $validProcess = false;
+                    $response['errors'] = array_merge($response['errors'], $regModel->errors);
+                }
+                if ( $validProcess ) {
+                    $regModel->username = $regModel->email;
+        			$soucePassword = $regModel->password;
+        			$regModel->activkey=UserModule::encrypting(microtime().$regModel->password);
+        			$regModel->password=UserModule::encrypting($regModel->password);
+        			$regModel->verifyPassword=UserModule::encrypting($regModel->verifyPassword);
+        			$regModel->superuser=0;
+        			$regModel->status=User::STATUS_ACTIVE;
+                    
+        			if ( $validProcess = $regModel->save() ) {
+                        $profile=new Profile;
+                        $profile->regMode = true;
+        				$profile->user_id=$regModel->id;
+        				$profile->save(false);
+                        $identity=new UserIdentity($regModel->username,$soucePassword);
+        				$identity->authenticate();
+        				Yii::app()->user->login($identity);
+                        $domain = $_SERVER['HTTP_HOST'];
+                        Functions::sendMail("Пароль для входа на сайт http:{$domain}", "Вы зарегестрированы на сайте http:{$domain}. Ваш пароль: {$soucePassword}. Ваш логин: {$regModel->email}", $regModel->email, "no-repeat@{$domain}");
+                    }
+                }
+            }
+            if ( Yii::app()->user->isGuest ) {
+                $validProcess = false;
+            }
+            
+            if ( $validProcess ) {
+                // дать необходимые доступы
+                $courses = Course::model()->findAll();
+                foreach ( $courses as $course ) {
+                    $lessons = $course->getLessonsByType(Course::BLOCK_TYPE_PAY_BASIC);
+                    foreach ( $lessons as $lesson ) {
+                        $lesson->allowAccess();
+                    }
+                }
+                $promoCode = PromoCode::model()->findByAttributes(array('code'=>$modelForm->promoCode));
+                if ( $promoCode ) {
+                    $promoCode->status = PromoCode::STATUS_USED;
+                    $promoCode->use_date = date('Y-m-d H:i');
+                    $promoCode->save();
+                }
+                $response['success'] = true;
+            }
+        }      
+        
+        echo CJavaScript::jsonEncode($response);
+    }
 }

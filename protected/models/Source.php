@@ -108,4 +108,26 @@ class Source extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+    
+    public function scopes()
+    {
+        return array(
+            'basic'=>array(
+                'condition'=>'owner_type='.self::OWNER_TYPE_COURSE_PAY,
+            ),
+            'advanced'=>array(
+                'condition'=>'owner_type='.self::OWNER_TYPE_COURSE_ADVANCED,
+            ),
+        );
+    }
+    
+    public function getSize()
+    {
+        return '';
+    }
+    
+    public function getDownloadUrl()
+    {
+        return Yii::app()->urlManager->createUrl('/source/download', array('id'=>$this->id));
+    }
 }

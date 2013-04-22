@@ -150,6 +150,8 @@ class User extends CActiveRecord
         $relations['categories'] = array(self::MANY_MANY, 'Category', 'tbl_user_categories(user_id, category_id)');
         $relations['notifyCats'] = array(self::MANY_MANY, 'Category', 'tbl_user_notify_categories(user_id, category_id)');
         $relations['r_courses'] = array(self::HAS_MANY, 'UserCourses', 'user_id');
+        $relations['r_lessons'] = array(self::HAS_MANY, 'UserLessons', 'user_id');
+        $relations['count_available_lessons'] = array(self::STAT, 'UserLessons', 'user_id', 'condition'=>'available=1');
         return $relations;
 	}
 
@@ -162,8 +164,8 @@ class User extends CActiveRecord
 			'id' => UserModule::t("Id"),
 			'username'=>UserModule::t("username"),
 			'password'=>UserModule::t("password"),
-			'verifyPassword'=>UserModule::t("Retype Password"),
-			'email'=>UserModule::t("E-mail"),
+			'verifyPassword'=>'Еще раз пароль',//UserModule::t("Retype Password"),
+			'email'=>'E-mail',//UserModule::t("E-mail"),
 			'verifyCode'=>UserModule::t("Verification Code"),
 			'activkey' => UserModule::t("activation key"),
 			'createtime' => UserModule::t("Registration date"),

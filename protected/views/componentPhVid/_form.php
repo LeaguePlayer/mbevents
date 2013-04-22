@@ -30,7 +30,17 @@
     
     <div class="row">
 		<?php echo $form->labelEx($model,'description'); ?>
-		<?php echo $form->textarea($model,'description'); ?>
+		<?php
+        $this->widget('ext.tinymce.TinyMce', array(
+            'model' => $model,
+            'attribute' => 'description',
+            // Optional config
+            'compressorRoute' => '/tinyMce/compressor',
+            //'spellcheckerUrl' => array('tinyMce/spellchecker'),
+            // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
+            //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+        ));
+        ?>
 		<?php echo $form->error($model,'description'); ?>
 	</div>
 

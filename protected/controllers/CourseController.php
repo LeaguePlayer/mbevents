@@ -28,7 +28,7 @@ class CourseController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','go'),
+				'actions'=>array('index','go','buy'),
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
@@ -93,8 +93,29 @@ class CourseController extends Controller
     
     public function actionGo($id)
     {
+        $this->layout='//layouts/column1';
+        
+        $pageVar = 'page';
+        $this->processPageRequest($pageVar);
+        $blogData = new CActiveDataProvider('Article', array(
+            'pagination'=>array(
+                'pageSize'=>5,
+                'pageVar' =>$pageVar,
+            ),
+        ));
+        if ( Yii::app()->request->isAjaxRequest ) {
+            echo $this->renderPartial('/site/_loopAjax', array(
+                'dataProvider'=>$blogData,
+                'itemView'=>'/article/_view',
+            ));
+            Yii::app()->end();
+        }
+        
         $model = $this->loadModel($id);
-        $this->render('go', array('model'=>$model));
+        $this->render('go', array(
+            'model'=>$model,
+            'blogData'=>$blogData,
+        ));
     }
     
     public function actionCancel($id, $operation = false)
@@ -325,5 +346,16 @@ class CourseController extends Controller
             }
         }
         echo CJSON::encode($response);
+    }
+    
+    public function actionBuy($pay_type = 'promo')
+    {
+        if ( Yii::app()->user->isGuest ) {
+            $regModel = new RegistrationForm('quick');
+        }
+        echo $this->renderPartial('/promoCode/input', array(
+            'model'=>new PromoCodeForm,
+            'regModel'=>$regModel,
+        ));
     }
 }

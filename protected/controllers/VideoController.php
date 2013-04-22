@@ -28,7 +28,7 @@ class VideoController extends Controller
 		return array(
             array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('out'),
-				'users'=>array('*'),
+				'users'=>array('@'),
 			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('upload','ajaxUpload', 'admin'),
@@ -139,7 +139,10 @@ class VideoController extends Controller
         if ( !$lesson ) {
             return;
         }
-        print_r($lesson->source);die();
+        if ( !$lesson->isAvailable() ) {
+            return;
+        }
+            
         $pathinfo = pathinfo($lesson->source);
         $location = Yii::getPathOfAlias('webroot') . $lesson->source;
         $mimeType = "video/mp4";

@@ -21,6 +21,8 @@ class Controller extends CController
 	 */
 	public $breadcrumbs=array();
     
+    public $topCourse;
+    
     protected function beforeRender()
     {
         $cs = Yii::app()->getClientScript();
@@ -59,6 +61,9 @@ class Controller extends CController
             Yii::app()->clientScript->registerCssFile( $css_url.'/form.css' );
         }
         
+        if ($this->topCourse===null) {
+            $this->topCourse = Course::model()->findTop();
+        }
         return true;
     }
 }

@@ -7,7 +7,9 @@ $this->pageTitle=Yii::app()->name;
     
         <?$announce->render();?>
         
+        <!--
 		<div class="big-more"><a href="">Подробная программа</a></div>
+        -->
         
 		<div class="white-box">
 			<div class="reviews">
@@ -68,6 +70,7 @@ $this->pageTitle=Yii::app()->name;
 					</div>
 				</div>
 			</div>
+            <!--
 			<div id="rounder">
 				<h2>Как проходит мероприятие</h2>
 				<div class="rounder">
@@ -86,6 +89,8 @@ $this->pageTitle=Yii::app()->name;
 				</div>
 				<p>Оставив работу чернорабочего, Трейси занялся продажами. Сначала</p>
 			</div>
+            -->
+            <!--
 			<div id="registration-on-event">
 				<h2>Регистрация на мероприятие</h2>
                 <?$form = $this->beginWidget('CActiveForm', array(
@@ -124,16 +129,16 @@ $this->pageTitle=Yii::app()->name;
 					</div>
                     <div class="clear"></div>
 					<div>
-						<!--<input type="submit" name="submit" class="submit" value="">-->
 						<input type="button" name="reserve" class="reserve" value="Забронировать" onclick="javascript:;">
 						<div class="clear"></div>
 					</div>
                 <?$this->endWidget();?>
 			</div>
+            -->
 		</div>
 	</section>
 	<aside id="blog" class="white-box">
-		<h2>Блог Б.Трейси</h2>
+		<h2 style="font-size: 22px;">ОФИЦИАЛЬНЫЙ БЛОГ БРАЙАНА ТРЕЙСИ</h2>
         <!--
 		<div class="filter" style="display: none;">
 			<form action="" type="POST">
@@ -163,6 +168,7 @@ $this->pageTitle=Yii::app()->name;
 	</aside>
 	<div class="clear"></div>
     
+    <!--
 	<section id="event-info">
 		<div class="schedule">
 			<h2>Расписание мероприятия</h2>
@@ -193,6 +199,7 @@ $this->pageTitle=Yii::app()->name;
 		</div>
 		<div class="clear"></div>
 	</section>
+    -->
 
 <?php
     //$this->renderPartial('/announce/_frontview', array('model'=>$announce));

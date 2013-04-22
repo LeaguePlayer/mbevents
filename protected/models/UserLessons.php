@@ -1,25 +1,26 @@
 <?php
 
 /**
- * This is the model class for table "tbl_user_courses".
+ * This is the model class for table "tbl_user_lessons".
  *
- * The followings are the available columns in table 'tbl_user_courses':
+ * The followings are the available columns in table 'tbl_user_lessons':
  * @property integer $id
  * @property integer $user_id
- * @property integer $course_id
- * @property integer $level
+ * @property integer $lesson_id
+ * @property integer $max_views
+ * @property integer $current_views
+ * @property string $date_close
+ * @property string $date_open
+ * @property string $alias
  */
-class UserCourses extends CActiveRecord
+class UserLessons extends CActiveRecord
 {
-    const LEVEL_BASIC = 1;
-    const LEVEL_ADVANCED = 2;
-
-    public $ref_count;
+    const MAX_VIEWS_VALUE = 60;
     
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
-	 * @return UserCourses the static model class
+	 * @return UserLessons the static model class
 	 */
 	public static function model($className=__CLASS__)
 	{
@@ -31,7 +32,7 @@ class UserCourses extends CActiveRecord
 	 */
 	public function tableName()
 	{
-		return 'tbl_user_courses';
+		return 'tbl_user_lessons';
 	}
 
 	/**
@@ -42,25 +43,14 @@ class UserCourses extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
 		return array(
-			array('level', 'required'),
-			array('user_id, course_id, level', 'numerical', 'integerOnly'=>true),
+			array('user_id, lesson_id, max_views, current_views, date_close', 'required'),
+			array('user_id, lesson_id, max_views, current_views', 'numerical', 'integerOnly'=>true),
+			array('alias', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, user_id, course_id, level', 'safe', 'on'=>'search'),
+			array('id, user_id, lesson_id, max_views, current_views, date_close, date_open, alias', 'safe', 'on'=>'search'),
 		);
 	}
-    
-    public function scopes()
-    {
-        return array(
-            'basic'=>array(
-                'condition'=>'level='.self::LEVEL_BASIC,
-            ),
-            'advanced'=>array(
-                'condition'=>'level='.self::LEVEL_ADVANCED,
-            ),
-        );
-    }
 
 	/**
 	 * @return array relational rules.
@@ -70,7 +60,7 @@ class UserCourses extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
-            'course'=>array(self::BELONGS_TO, 'Course', 'course_id'),
+            'lesson'=>array(self::BELONGS_TO, 'Lesson', 'lesson_id'),
 		);
 	}
 
@@ -82,8 +72,12 @@ class UserCourses extends CActiveRecord
 		return array(
 			'id' => 'ID',
 			'user_id' => 'User',
-			'course_id' => 'Course',
-			'level' => 'Level',
+			'lesson_id' => 'Lesson',
+			'max_views' => 'Max Views',
+			'current_views' => 'Current Views',
+			'date_close' => 'Date Close',
+			'date_open' => 'Date Open',
+			'alias' => 'Alias',
 		);
 	}
 
@@ -100,11 +94,26 @@ class UserCourses extends CActiveRecord
 
 		$criteria->compare('id',$this->id);
 		$criteria->compare('user_id',$this->user_id);
-		$criteria->compare('course_id',$this->course_id);
-		$criteria->compare('level',$this->level);
+		$criteria->compare('lesson_id',$this->lesson_id);
+		$criteria->compare('max_views',$this->max_views);
+		$criteria->compare('current_views',$this->current_views);
+		$criteria->compare('date_close',$this->date_close,true);
+		$criteria->compare('date_open',$this->date_open,true);
+		$criteria->compare('alias',$this->alias,true);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
 		));
 	}
+    
+    protected function beforeSave()
+    {
+        if ( !parent::beforeSave() ) {
+            return false;
+        }
+        if ( $this->isNewRecord ) {
+            $this->date_open = date('Y-m-d');
+        }
+        return true;
+    }
 }

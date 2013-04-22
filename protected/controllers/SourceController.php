@@ -31,6 +31,10 @@ class SourceController extends Controller
 				'actions'=>array('admin','delete','upload'),
 				'users'=>array('admin'),
 			),
+            array('allow',
+                'actions'=>array('download'),
+                'users'=>'@',
+            ),
 			array('deny',  // deny all users
 				'users'=>array('*'),
 			),
@@ -163,5 +167,75 @@ class SourceController extends Controller
             }
         }
         return $ret;
+    }
+    
+    public function actionDownload($id)
+    {
+        $source = $this->loadModel($id);
+        
+        if ( !$source->isAvailable() ) {
+            return;
+        }
+        $pathinfo = pathinfo($source->path);
+        $location = Yii::getPathOfAlias('webroot') . $source->path;
+        $mimeType = "application/pdf";
+        self::smartReadFile($location, $pathinfo['basename'], $mimeType);
+    }
+    
+    public static function smartReadFile($location, $filename, $mimeType)
+    {        
+        if(!file_exists($location))
+        { header ("HTTP/1.0 404 Not Found");
+            return;
+        }
+        
+        $size=filesize($location);
+        $time=date('r',filemtime($location));
+        
+        $fm=@fopen($location,'rb');
+        if(!$fm)
+        { header ("HTTP/1.0 505 Internal server error");
+            return;
+        }
+        
+        $begin=0;
+        $end=$size;
+        
+        if(isset($_SERVER['HTTP_RANGE']))
+        {
+            if(preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $_SERVER['HTTP_RANGE'], $matches))
+            {
+                $begin=intval($matches[0]);
+                if( !empty($matches[1]) ) {
+                    $end=intval($matches[1]);
+                }
+            }
+        }
+        
+        if($begin>0||$end<$size) {
+            header('HTTP/1.0 206 Partial Content');
+        } else {
+            header('HTTP/1.0 200 OK');  
+        }
+        header("Content-Type: $mimeType");
+        header('Cache-Control: no-cache, no-store, max-age=0, must-revalidate');
+        header('Pragma: no-cache');  
+        header('Accept-Ranges: bytes');
+        header('Content-Length:'.($end-$begin));
+        header("Content-Range: bytes $begin-$end/$size");
+        header("Content-Disposition: inline; filename=$filename");
+        header("Content-Transfer-Encoding: binary\n");
+        header("Last-Modified: $time");
+        header('Connection: close');
+        
+        $cur=$begin;
+        fseek($fm,$begin,0);
+        
+        while(!feof($fm)&&$cur<$end&&(connection_status()==0))
+        {
+            echo fread($fm,min(1024*2,$end-$cur));
+            $cur+=1024*2;
+            //set_time_limit(30);
+        }
     }
 }

@@ -32,7 +32,7 @@ class SiteController extends Controller
        
         $blogDataProvider = new CActiveDataProvider('Article', array(
             'pagination'=>array(
-                'pageSize'=>1,
+                'pageSize'=>5,
                 'pageVar' =>$pageVar,
             ),
         ));

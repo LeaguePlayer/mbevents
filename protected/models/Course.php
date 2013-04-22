@@ -16,6 +16,8 @@ class Course extends CActiveRecord
     const BLOCK_TYPE_FREE_BASIC = 1;
     const BLOCK_TYPE_PAY_BASIC = 2;
     const BLOCK_TYPE_PAY_ADVANCED = 3;
+
+    public $acessLevel = self::BLOCK_TYPE_FREE_BASIC;
     
 	/**
 	 * Returns the static model of the specified AR class.
@@ -49,7 +51,7 @@ class Course extends CActiveRecord
 			array('title, video_preview', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-            array('description, basic_description, adv_description', 'safe'),
+            array('description, basic_description, adv_description, preview_description', 'safe'),
 			array('id, category_id, title, video_preview, basic_cost, advanced_cost', 'safe', 'on'=>'search'),
 		);
 	}
@@ -67,6 +69,13 @@ class Course extends CActiveRecord
             'countLessons'=>array(self::STAT, 'Lesson', 'course_id', 'select'=>'count(*)'),
             //'countPayLessons'=>array(self::STAT, 'Lesson', 'course_id',
             //    'select'=>'count(*)', 'scopes'=>array('pay_bsic', 'pay_advanced')),
+            'user_courses'=>array(self::HAS_MANY, 'UserCourses', 'course_id',
+                //'condition'=>'user_courses.user_id='.Yii::app()->user->id,
+                //'params'=>array(':u_ud'=>Yii::app()->user->id)
+            ),
+            'basic_sources'=>array(self::HAS_MANY, 'Source', 'owner_id', 'condition'=>'owner_type='.Source::OWNER_TYPE_COURSE_PAY),
+            'advanced_sources'=>array(self::HAS_MANY, 'Source', 'owner_id', 'condition'=>'owner_type='.Source::OWNER_TYPE_COURSE_ADVANCED),
+            'count_sources'=>array(self::STAT, 'Source', 'owner_id', 'select'=>'count(*)'),
 		);
 	}
 
@@ -79,7 +88,8 @@ class Course extends CActiveRecord
 			'id' => 'ID',
 			'category_id' => 'Тематика',
 			'title' => 'Название курса',
-			'video_preview' => 'Видео-обзор',
+			'video_preview' => 'Ссылка на youtube с видео-обращением',
+            'preview_description' => 'Описание к видео-обращению',
 			'basic_cost' => 'Стоимость базовой части',
 			'advanced_cost' => 'Стоимость расширенной части',
             'description' => 'Описание курса',
@@ -126,6 +136,26 @@ class Course extends CActiveRecord
         return $this->lessons(array('scopes'=>'pay_advanced'));
     }
     
+    public function getLessonsByType($blockType = false)
+    {      
+        switch ( $blockType ) {
+            case self::BLOCK_TYPE_FREE_BASIC:
+                return $this->getFreeBasicLessons();
+                break;
+            
+            case self::BLOCK_TYPE_PAY_BASIC:
+                return $this->getPaydBasicLessons();
+                break;
+            
+            case self::BLOCK_TYPE_PAY_ADVANCED:
+                return $this->getPaydAdvancedLessons();
+                break;
+            
+            default:
+                return $this->lessons;
+        }
+    }
+    
     protected function afterDelete()
     {
         foreach ( $this->lessons as $lesson )
@@ -139,34 +169,53 @@ class Course extends CActiveRecord
     
     public function getCountAvailableLessons()
     {
-        $lessonsCount = $this->countLessons(array('scopes'=>'free_basic'));
         $user = UserModule::user();
         if ( !$user ) {
-            return $lessonsCount;
+            return 0;
         }
-        $r_courses = $user->r_courses(array('condition'=>'r_courses.course_id='.$this->id));
-        foreach ($r_courses as $r_course) {
-            switch ( $r_course->level ) {
-                case UserCourses::LEVEL_BASIC:
-                    $lessonsCount += $r_course->course->$this->countLessons(array('scopes'=>'pay_basic'));
-                    // break убрал, так как расширенный уровень включает в себя базовый
-                case UserCourses::LEVEL_ADVANCED:
-                    $lessonsCount += $r_course->course->$this->countLessons(array('scopes'=>'pay_advanced'));
-                    break;
-                default:
-                    continue;
-            }
-        }
-        return $lessonsCount;
+        return $user->count_available_lessons;
     }
     
-//    public function checkBasicAccess()
-//    {
-//        
-//    }
-//    
-//    public function checkAdvancedAccess()
-//    {
-//        
-//    }
+    public static function findTop()
+    {
+        $courses = self::model()->findAll(array(
+            'order'=>'id',
+        ));
+        return $courses[0];
+    }
+    
+    public function getUrl()
+    {
+        return Yii::app()->urlManager->createUrl('/course/go', array('id'=>$this->id));
+    }
+    
+    public function getCountSources($block_type = false)
+    {
+        switch ($block_type) {
+            case 'basic':
+            return $this->count_sources(array('scopes'=>'basic'));
+            break;
+            
+            case 'advanced':
+            return $this->count_sources(array('scopes'=>'advanced'));
+            break;
+            
+            default:
+            return 0;
+        }
+    }
+
+    protected function afterFind()
+    {
+        $userCourses = $this->user_courses(array(
+                'condition'=>'user_id=:u_id',
+                'params'=>array(':u_id'=>Yii::app()->user->id),
+        ));
+        foreach ( $userCourses as $userCourse ) {
+            if ( $userCourse->available ) {
+                $this->acessLevel = $userCourse->level;
+            }
+            break;
+        }
+    }
 }

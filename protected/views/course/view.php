@@ -29,6 +29,26 @@
     		<?php echo $form->textField($model,'title',array('size'=>60,'maxlength'=>255)); ?>
     		<?php echo $form->error($model,'title'); ?>
     	</div>
+        
+        <div class="row">
+    		<?php echo $form->labelEx($model,'description'); ?>
+    		<?php
+            $this->widget('ext.tinymce.TinyMce', array(
+                'model' => $model,
+                'attribute' => 'description',
+                // Optional config
+                'compressorRoute' => '/tinyMce/compressor',
+                //'spellcheckerUrl' => array('tinyMce/spellchecker'),
+                // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
+                //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+                'htmlOptions' => array(
+                    'rows' => 6,
+                    'cols' => 60,
+                ),
+            ));
+            ?>
+    		<?php echo $form->error($model,'description'); ?>
+    	</div>
     
     	<div class="row">
     		<?php echo $form->labelEx($model,'video_preview'); ?>
@@ -37,9 +57,23 @@
     	</div>
         
         <div class="row">
-    		<?php echo $form->labelEx($model,'description'); ?>
-    		<?php echo $form->textArea($model,'description'); ?>
-    		<?php echo $form->error($model,'description'); ?>
+    		<?php echo $form->labelEx($model,'preview_description'); ?>
+    		<?php
+            $this->widget('ext.tinymce.TinyMce', array(
+                'model' => $model,
+                'attribute' => 'preview_description',
+                // Optional config
+                'compressorRoute' => '/tinyMce/compressor',
+                //'spellcheckerUrl' => array('tinyMce/spellchecker'),
+                // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
+                //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+                'htmlOptions' => array(
+                    'rows' => 6,
+                    'cols' => 60,
+                ),
+            ));
+            ?>
+    		<?php echo $form->error($model,'preview_description'); ?>
     	</div>
         
         <fieldset>
@@ -52,7 +86,21 @@
             
             <div class="row">
         		<?php echo $form->labelEx($model,'basic_description'); ?>
-        		<?php echo $form->textArea($model,'basic_description'); ?>
+        		<?php
+                $this->widget('ext.tinymce.TinyMce', array(
+                    'model' => $model,
+                    'attribute' => 'basic_description',
+                    // Optional config
+                    'compressorRoute' => '/tinyMce/compressor',
+                    //'spellcheckerUrl' => array('tinyMce/spellchecker'),
+                    // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
+                    //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+                    'htmlOptions' => array(
+                        'rows' => 6,
+                        'cols' => 60,
+                    ),
+                ));
+                ?>
         		<?php echo $form->error($model,'basic_description'); ?>
         	</div>
         </fieldset>
@@ -67,7 +115,21 @@
             
             <div class="row">
         		<?php echo $form->labelEx($model,'adv_description'); ?>
-        		<?php echo $form->textArea($model,'adv_description'); ?>
+        		<?php
+                $this->widget('ext.tinymce.TinyMce', array(
+                    'model' => $model,
+                    'attribute' => 'adv_description',
+                    // Optional config
+                    'compressorRoute' => '/tinyMce/compressor',
+                    //'spellcheckerUrl' => array('tinyMce/spellchecker'),
+                    // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
+                    //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+                    'htmlOptions' => array(
+                        'rows' => 6,
+                        'cols' => 60,
+                    ),
+                ));
+                ?>
         		<?php echo $form->error($model,'adv_description'); ?>
         	</div>
         </fieldset>

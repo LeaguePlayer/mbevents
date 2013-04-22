@@ -2,7 +2,7 @@
 	<article>
 		<header>
 			<div class="post-info">
-				<div class="post-date"><?=date('j F Y', $model->date_public)?></div>
+				<div class="post-date"><?=date('j F Y', strtotime($model->date_public))?></div>
 				<div class="post-views">0</div>
 				<div class="post-comments">0</div>
                 <?$counter = 0;?>
@@ -18,11 +18,12 @@
 			<h1><?=$model->title?></h1>
 		</header>
 		<div class="post-body">
-			<img src="images/tmp/post_img2.jpg" alt="">
+			<img src="/uploads/previews/<?=$model->image?>" alt="" width="380">
 			<?=$model->full_description?>
 		</div>
-		<div class="post-social">Соц сети</div>
+		<!--<div class="post-social">Соц сети</div>-->
 	</article>
+    <!--
 	<h2>Интересно? Расскажи другу!</h2>
 	<div class="shared-form">
 		<form name="" type="POST" action="">
@@ -32,6 +33,7 @@
 			<div class="clear"></div>
 		</form>
 	</div>
+    -->
     <!--
 	<h2>Что думаешь об этом?</h2>
 	<div class="reviews">
@@ -55,6 +57,7 @@
 		</div>
 	</div>
     -->
+    <!--
 	<h2>Хочу высказаться</h2>
 	<div class="question">
 		<form>
@@ -68,4 +71,5 @@
 			<div class="clear"></div>
 		</form>
 	</div>
+    -->
 </section>

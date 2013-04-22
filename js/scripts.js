@@ -22,29 +22,35 @@ function PlayersManager() {
             element: '',
             source: '',
             image: '',
+            width: 940,
+            height: 300,
+            provider: 'video',
+            write: 'mediaspace'
         }, settings || {});
-        
-        console.log(settings);
         
         var manager = this;        
         jwplayer(s.element).setup({
             file: s.source,
             image: s.image,
-            provider: 'video',
-            write: 'mediaspace',
+            width: s.width,
+            height: s.height,
+            provider: s.provider,
+            write: s.write,
         });
         jwplayer(s.element).onPlay(function() {
             manager.pausePlayers(s.element);
         });
-        this._players[s.element] = true;
+        this._players[s.element] = true; //true или false здесь роли не играет, важен только факт наличия элемента s.element в массиве _players
     }
     
     this.initPlayerByElementAttributes = function(element) {
         var el = $(element);
         var settings = {
             element: el.attr('id'),
-            source: el.attr(this.settings.streamSource),
-            image: el.attr(this.settings.imageSource),
+            source: el.data(this.settings.streamSource),
+            image: el.data(this.settings.imageSource),
+            width: el.data('width'),
+            height: el.data('height'),
         };
         this.initPlayer(settings);
     }
@@ -66,8 +72,10 @@ function PlayersManager() {
     }
     
     this.removePlayer = function(element) {
-        jwplayer(element).remove();
-        delete this._players.element;
+        if ( this._players[element] == true ) {
+            jwplayer(element).remove();
+            delete this._players.element;
+        }
     }
     
     this.init = function() {

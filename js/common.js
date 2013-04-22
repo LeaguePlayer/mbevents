@@ -132,9 +132,94 @@ $(function(){
 	});
     
     onLoadBlog();
+    
+    
+    // Кнопка покупки курса
+    $('.buy_lessons').click(function() {
+        $.ajax({
+            url: '/course/buy',
+            type: 'POST',
+            data: $(this).parents('form').serialize(),
+            success: function(data) {
+                $.fancybox({
+                    content: data,
+                    padding: 0,
+                    closeBtn: false,
+                });
+            }
+        });
+        return false;
+    });
+    
+    // Кнопка ввода промо-кода
+    $(document).delegate('.promocode_enter', 'click', function() {
+        self = $(this);
+        $.ajax({
+            url: '/promoCode/enter',
+            type: 'POST',
+            data: $(this).parents('form').serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success == true) {
+                    //self.parents('.div_with_steps').html(response.message);
+                    self.parents('#look_video').removeClass('alert_error');
+                    window.location.reload();
+                    return;
+                }
+                self.parents('#look_video').addClass('alert_error');
+                var inputsBox = self.parents('form').find('.div_with_inputs');
+                inputsBox.find('input').removeClass('error');
+                for ( var key in response.errors ) {
+                    inputsBox.find('input[name*='+ key +']').addClass('error');
+                }
+            }
+        });
+        return false;
+    });
+    
+    
+    // Просмотр уроков
+    $(document).delegate('.open_lesson', 'click', function() {
+        self = $(this);
+        $.ajax({
+            url: '/lesson/view',
+            type: 'GET',
+            data: {
+                id: self.data('lesson_id'),
+            },
+            success: function(data) {
+                $.fancybox({
+                    content: data,
+                    padding: 0,
+                    closeBtn: false,
+                    modal: true,
+                    afterShow: function() {
+                        var pManager = new PlayersManager();
+                        pManager.initPlayersInHtml(this.content);
+                        return true;
+                    }
+                });
+            }
+        });
+        return false;
+    });
+    
+    $(document).delegate('.close_video', 'click', function() {
+        var pManager = new PlayersManager();
+        pManager.removePlayer($(this).data('element'));
+        $.fancybox.close();
+        return false;
+    });
+    
+    
+    $(document).delegate('.close_fancybox', 'click', function() {
+        $.fancybox.close();
+        return false;
+    });
+
 });
 
-function showDark(){
+function showDark() {
 	var dark = $('#dark-side');
 	if(dark.length == 0){
 		dark = $('<div id="dark-side"><div class="content-box"></div></div>');

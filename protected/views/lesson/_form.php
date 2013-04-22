@@ -33,11 +33,31 @@
         )); ?>
 		<?php echo $form->error($model,'source'); ?>
 	</div>
-
-	<div class="row">
-		<?php echo $form->labelEx($model,'course_id'); ?>
-		<?php echo $form->textField($model,'course_id'); ?>
-		<?php echo $form->error($model,'course_id'); ?>
+    
+    <div class="row">
+		<?php echo $form->labelEx($model,'poster'); ?>
+		<?php $this->widget('ext.elFinder.ServerFileInput', array(
+            'model'=>$model,
+            'attribute'=>'poster',
+            //'path' => '/uploads', // path to your uploads directory, must be writeable 
+            //'url' => 'http://mbevents.loc/uploads/', // url to uploads directory 
+            //'action' => $this->createUrl('/elfinder/connector') // the connector action (we assume we are pasting this code in the sitecontroller view file)
+            'connectorRoute'=>'/elfinder/connector',
+        )); ?>
+		<?php echo $form->error($model,'poster'); ?>
+	</div>
+    
+    <div class="row">
+		<?php echo $form->labelEx($model,'description'); ?>
+		<?php
+        $this->widget('ext.tinymce.TinyMce', array(
+            'model' => $model,
+            'attribute' => 'description',
+            // Optional config
+            'compressorRoute' => '/tinyMce/compressor',
+        ));
+        ?>
+		<?php echo $form->error($model,'description'); ?>
 	</div>
 
 	<div class="row">
