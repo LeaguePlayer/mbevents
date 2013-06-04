@@ -1,7 +1,7 @@
 <?php /* @var $this Controller */ ?>
 <?php $this->beginContent('//layouts/main'); ?>
 <div class="center">
-    <div class="span-19">
+    <div class="span-21">
     	<div id="content">
     		<?php echo $content; ?>
     	</div><!-- content -->

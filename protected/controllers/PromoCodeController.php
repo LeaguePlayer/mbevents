@@ -32,12 +32,8 @@ class PromoCodeController extends Controller
 				'users'=>array('*'),
 			),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('generate', 'index'),
-				'users'=>array('@'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-				'users'=>array('@'),
+				'actions'=>array('generate', 'index', 'admin','delete'),
+				'users'=>Yii::app()->getModule('user')->getAdmins(),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -161,7 +157,7 @@ class PromoCodeController extends Controller
                     $response['errors'] = array_merge($response['errors'], $regModel->errors);
                 }
                 if ( $validProcess ) {
-                    $regModel->username = $regModel->email;
+                    $regModel->username = Functions::generateKey(8);
         			$soucePassword = $regModel->password;
         			$regModel->activkey=UserModule::encrypting(microtime().$regModel->password);
         			$regModel->password=UserModule::encrypting($regModel->password);
@@ -169,16 +165,28 @@ class PromoCodeController extends Controller
         			$regModel->superuser=0;
         			$regModel->status=User::STATUS_ACTIVE;
                     
-        			if ( $validProcess = $regModel->save() ) {
+                    $validProcess = $regModel->validate() && $validProcess;
+                    
+        			if ( $validProcess && $regModel->save(false) ) {
                         $profile=new Profile;
                         $profile->regMode = true;
         				$profile->user_id=$regModel->id;
         				$profile->save(false);
-                        $identity=new UserIdentity($regModel->username,$soucePassword);
+                        $identity=new UserIdentity($regModel->email,$soucePassword);
         				$identity->authenticate();
         				Yii::app()->user->login($identity);
                         $domain = $_SERVER['HTTP_HOST'];
-                        Functions::sendMail("Пароль для входа на сайт http:{$domain}", "Вы зарегестрированы на сайте http:{$domain}. Ваш пароль: {$soucePassword}. Ваш логин: {$regModel->email}", $regModel->email, "no-repeat@{$domain}");
+                        $message = "
+                            Добрый день!<br/>
+                            Вас приветствует Академия Брайана Трейси!<br/>
+                            Вы зарегистрированы на сайте http://{$domain}. Ваш пароль: {$soucePassword}. Ваш логин: {$regModel->email}<br/>
+                            Благодарим Вас за проявление интереса к нашему порталу. В настоящий момент вы можете следить за обновлениями официального блога Брайана Трейси в России, а также обучаться по лучшим видео-урокам на тему 'Успех в продажах'.<br/>
+                            В ближайшее время на сайте появится много чего интересного, в том числе - расширение тематик ленты блога, новые видео-уроки, личный кабинет с полезными бизнес-функциями и многое другое.<br/>
+                            Следите за обновлениями!<br/><br/>
+                            С уважением, <br/>
+                            Академия Брайана Трейси.
+                        ";
+                        Functions::sendMail("Пароль для входа на сайт http:{$domain}", $message, $regModel->email, "Академя Брайана Трейси");
                     }
                 }
             }
@@ -190,16 +198,21 @@ class PromoCodeController extends Controller
                 // дать необходимые доступы
                 $courses = Course::model()->findAll();
                 foreach ( $courses as $course ) {
-                    $lessons = $course->getLessonsByType(Course::BLOCK_TYPE_PAY_BASIC);
+                    $lessons = $course->getPaydBasicLessons();
+                    //print_r(count($lessons));die();
+                    $counter = 0;
                     foreach ( $lessons as $lesson ) {
-                        $lesson->allowAccess();
+                        if ( $lesson->allowAccess() ) {
+                            $counter++;
+                        }
                     }
                 }
                 $promoCode = PromoCode::model()->findByAttributes(array('code'=>$modelForm->promoCode));
                 if ( $promoCode ) {
                     $promoCode->status = PromoCode::STATUS_USED;
                     $promoCode->use_date = date('Y-m-d H:i');
-                    $promoCode->save();
+                    $promoCode->owner = Yii::app()->user->id;
+                    $promoCode->save(false);
                 }
                 $response['success'] = true;
             }

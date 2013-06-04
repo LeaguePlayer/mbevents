@@ -79,6 +79,7 @@ class PromoCode extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'user'=>array(self::BELONGS_TO, 'User', 'owner', 'select'=>'user.id, user.email'),
 		);
 	}
 
@@ -95,7 +96,7 @@ class PromoCode extends CActiveRecord
 			'status' => 'Статус',
             'count' => 'Количество',
             'expire_date' => 'Действителен до',
-            'use_date' => 'Дата использования'
+            'use_date' => 'Когда задействован'
 		);
 	}
 
@@ -115,9 +116,14 @@ class PromoCode extends CActiveRecord
 		$criteria->compare('expire',$this->expire);
 		$criteria->compare('last_update',$this->last_update);
 		$criteria->compare('status',$this->status);
+        $criteria->order = 't.status DESC, t.last_update';
+        $criteria->with = 'user';
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,
+            'pagination'=>array(
+                'pageSize'=>100,
+            )
 		));
 	}
     
@@ -163,5 +169,10 @@ class PromoCode extends CActiveRecord
             $result .= $string[rand(0, $n)];
         }        
         $this->code = $result;
+    }
+    
+    public function getFormattedDate($attributeDate)
+    {
+        return date( 'd F Y', strtotime($this->{$attributeDate}) );
     }
 }

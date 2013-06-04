@@ -76,6 +76,7 @@ class RelAnnounceComponent extends CActiveRecord
             'CTimestampBehavior' => array(
                 'class' => 'zii.behaviors.CTimestampBehavior',
                 'createAttribute' => 'date_create',
+                'updateAttribute' => 'date_update',
             )
         );
     }

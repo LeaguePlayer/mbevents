@@ -1,0 +1,38 @@
+
+.scroll-wrapper {
+    position: relative;
+	overflow: hidden;
+}
+
+.scroller {
+    height: 800px;
+    overflow-y: scroll;
+}
+.scroller::-webkit-scrollbar {
+    width: 0;
+}
+
+.scroll-container {
+	overflow: hidden;
+    padding-right: 26px;
+    background-image: url('../images/scroll_pane.png');
+    background-repeat: repeat-y;
+    background-position: -9999px 0;
+    min-height: 100%;
+}
+.scroll-container.cont__bar_state_on {
+    background-position: top right;
+}
+
+.scroller__bar {
+	position: absolute;
+    z-index: 1;
+    right: 0;
+    display: none;
+    width: 27px;
+    min-height: 28px;
+    background: url('../images/scroll_button.png') center center no-repeat;
+}
+.scroller__bar_state_on {
+	display: block;
+}

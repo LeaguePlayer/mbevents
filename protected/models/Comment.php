@@ -43,7 +43,8 @@ class Comment extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('content', 'required'),
-			array('user_id, status, article_id', 'numerical', 'integerOnly'=>true),
+            array('article_id', 'safe'),
+			//array('user_id, status, article_id', 'numerical', 'integerOnly'=>true),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, user_id, date_create, status, article_id, content', 'safe', 'on'=>'search'),
@@ -58,6 +59,7 @@ class Comment extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array(
+            'author'=>array(self::BELONGS_TO, 'User', 'user_id'),
 		);
 	}
 
@@ -75,6 +77,15 @@ class Comment extends CActiveRecord
 			'content' => 'Content',
 		);
 	}
+    
+    public function behaviors() {
+        return array(
+            'CTimestampBehavior' => array(
+                'class' => 'zii.behaviors.CTimestampBehavior',
+                'createAttribute' => 'date_create',
+            )
+        );
+    }
 
 	/**
 	 * Retrieves a list of models based on the current search/filter conditions.
@@ -98,4 +109,14 @@ class Comment extends CActiveRecord
 			'criteria'=>$criteria,
 		));
 	}
+    
+    public function beforeSave()
+    {
+        if ( parent::beforeSave() ) {
+            $this->user_id = Yii::app()->user->id;
+            $this->status = Yii::app()->user->isAdmin() ? self::STATUS_APPROVED : self::STATUS_PENDING;
+            return true;
+        }
+        return false;
+    }
 }

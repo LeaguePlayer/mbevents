@@ -130,4 +130,9 @@ class Source extends CActiveRecord
     {
         return Yii::app()->urlManager->createUrl('/source/download', array('id'=>$this->id));
     }
+    
+    public function isAvailable()
+    {
+        return true;
+    }
 }

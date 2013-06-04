@@ -6,7 +6,9 @@ class CourseController extends Controller
 	 * @var string the default layout for the views. Defaults to '//layouts/column2', meaning
 	 * using two-column layout. See 'protected/views/layouts/column2.php'.
 	 */
-	public $layout='//layouts/column2';
+	public $layout='//layouts/column1';
+    
+    //public $defaultAction = 'go';
 
 	/**
 	 * @return array action filters
@@ -16,8 +18,18 @@ class CourseController extends Controller
 		return array(
 			'accessControl', // perform access control for CRUD operations
 			'postOnly + delete, addLesson, removeLesson', // we only allow deletion via POST request
+            'ajaxOnly + pay',
 		);
 	}
+    
+    public function behaviors()
+    {
+        return array(
+            'articleBehavior' => array(
+                'class' => 'AutoLoadArticleBehavior',
+            ),
+        );
+    }
 
 	/**
 	 * Specifies the access control rules.
@@ -28,16 +40,16 @@ class CourseController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index','go','buy'),
+				'actions'=>array('index','go','buy','pay'),
 				'users'=>array('*'),
 			),
+            array('allow',
+                'actions'=>array('my'),
+                'users'=>array('@'),
+            ),
 			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-				'actions'=>array('create','update','cancel','addLesson','removeLesson','view'),
-				'users'=>array('admin'),
-			),
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete'),
-				'users'=>array('admin'),
+				'actions'=>array('create','update','cancel','addLesson','removeLesson','view', 'admin','delete','manage'),
+				'users'=>Yii::app()->getModule('user')->getAdmins(),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -49,93 +61,30 @@ class CourseController extends Controller
 	 * Displays a particular model.
 	 * @param integer $id the ID of the model to be displayed
 	 */
-	public function actionView($operation = '')
+	public function actionView($operation = '', $id = false)
 	{
-        $id = Yii::app()->request->getQuery('id');
-        $with = array('lessons');
-        switch ($operation) {
-            case '':
-                $model = $this->loadModel($id, $with);
-                break;
-                
-            case 'edit':
-                $model = $this->loadModel($id, $with);
-                break;
-                
-            case 'new':
-                $model = new Course;
-                $model->title = 'Новый видео-курс';
-                $model->save();
-                break;
-                
-            default:
-                throw new CHttpException(400, 'Неверный запрос');
-        }
-        
-        if ( isset($_POST['Course']) ) {
-            $model->setAttributes($_POST['Course']);
-            if ( $model->save() ) {
-                $this->redirect('/course/admin');
-            }
-        }
-        
-        Yii::app()->getClientScript()->registerCssFile( Yii::app()->getClientScript()->getCoreScriptUrl().'/jui/css/base/jquery-ui.css' );
-        Yii::app()->getClientScript()->registerCssFile( CHtml::asset( Yii::getPathOfAlias('webroot').'/css').'/admin.css' );
-        Yii::app()->getClientScript()->registerCoreScript('jquery.ui');
-        $url = CHtml::asset( Yii::getPathOfAlias('webroot').'/js/admin/' );
-        Yii::app()->getClientScript()->registerScriptFile($url.'/course.js', CClientScript::POS_END);
-       
-		$this->render('view',array(
-			'model'=>$model,
-            'operation'=>$operation,
-		));
 	}
     
     public function actionGo($id)
     {
-        $this->layout='//layouts/column1';
-        
-        $pageVar = 'page';
-        $this->processPageRequest($pageVar);
-        $blogData = new CActiveDataProvider('Article', array(
-            'pagination'=>array(
-                'pageSize'=>5,
-                'pageVar' =>$pageVar,
+        $with = array(
+            'category',
+            'lessons'=>array(
+                'with'=>array(
+                    'sources'
+                ),
             ),
-        ));
-        if ( Yii::app()->request->isAjaxRequest ) {
-            echo $this->renderPartial('/site/_loopAjax', array(
-                'dataProvider'=>$blogData,
-                'itemView'=>'/article/_view',
-            ));
-            Yii::app()->end();
-        }
-        
-        $model = $this->loadModel($id);
+            'c_sources',
+        );
+        $pageVar = 'page';
+        $model = $this->loadModel($id, $with);
         $this->render('go', array(
             'model'=>$model,
-            'blogData'=>$blogData,
         ));
     }
     
     public function actionCancel($id, $operation = false)
     {
-        $model = $this->loadModel($id);
-        if ($model) {
-            switch ($operation) {
-                case 'new':
-                    $model->delete();
-                    break;
-                    
-                case 'edit':
-                    //$model->back();
-                    break;
-                default:
-                    // ничего не делаем
-                    ;
-            }
-        }
-        $this->redirect('/course/admin');
     }
 
 	/**
@@ -144,18 +93,17 @@ class CourseController extends Controller
 	 */
 	public function actionCreate()
 	{
-		$model=new Course;
-
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Course']))
-		{
-			$model->attributes=$_POST['Course'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
-		}
-
+        $this->layout='//layouts/column2';
+		$model = new Course;
+        $model->title = 'Новый видео-курс';
+        
+        if ( isset($_POST['Course']) ) {
+            $model->setAttributes($_POST['Course']);
+            if ( $model->save() ) {
+                $this->redirect('/course/admin');
+            }
+        }
+       
 		$this->render('create',array(
 			'model'=>$model,
 		));
@@ -168,22 +116,31 @@ class CourseController extends Controller
 	 */
 	public function actionUpdate($id)
 	{
+        $this->layout='//layouts/column2';
 		$model=$this->loadModel($id);
 
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-
-		if(isset($_POST['Course']))
-		{
-			$model->attributes=$_POST['Course'];
-			if($model->save())
-				$this->redirect(array('view','id'=>$model->id));
-		}
-
+		if ( isset($_POST['Course']) ) {
+            $model->setAttributes($_POST['Course']);
+            if ( $model->save() ) {
+                $this->redirect('/course/admin');
+            }
+        }
 		$this->render('update',array(
 			'model'=>$model,
 		));
 	}
+    
+    public function actionManage($id)
+    {
+        $this->layout='//layouts/column2';
+        $model = $this->loadModel($id);
+        Yii::app()->getClientScript()->registerCssFile( Yii::app()->getClientScript()->getCoreScriptUrl().'/jui/css/base/jquery-ui.css' );
+        Yii::app()->getClientScript()->registerCoreScript('jquery.ui');
+        Yii::app()->getClientScript()->registerScriptFile( $this->getAssetsBase() .'/js/admin/course.js', CClientScript::POS_END);
+		$this->render('manage',array(
+			'model'=>$model,
+		));
+    }
 
 	/**
 	 * Deletes a particular model.
@@ -192,6 +149,7 @@ class CourseController extends Controller
 	 */
 	public function actionDelete($id)
 	{
+        $this->layout='//layouts/column2';
 		$this->loadModel($id)->delete();
 
 		// if AJAX request (triggered by deletion via admin grid view), we should not redirect the browser
@@ -213,7 +171,10 @@ class CourseController extends Controller
         $criteria = new CDbCriteria;
         $criteria->with = array('category', 'lessons');
         $pageVar = 'page';
-        $this->processPageRequest($pageVar);
+        
+        if (Yii::app()->request->isAjaxRequest && isset($_POST[$pageVar]))
+            $_GET[$pageVar] = Yii::app()->request->getPost($pageVar);
+            
 		$dataProvider=new CActiveDataProvider('Course', array(
             'criteria'=>$criteria,
             'pagination'=>array(
@@ -234,23 +195,13 @@ class CourseController extends Controller
 			'dataProvider'=>$dataProvider,
 		));
 	}
-    
-    
-    
-    
-    
-    
-    protected function processPageRequest($param = 'page')
-    {
-        if (Yii::app()->request->isAjaxRequest && isset($_POST[$param]))
-            $_GET[$param] = Yii::app()->request->getPost($param);
-    }
 
 	/**
 	 * Manages all models.
 	 */
 	public function actionAdmin()
 	{
+        $this->layout='//layouts/column2';
 		$model=new Course('search');
 		$model->unsetAttributes();  // clear any default values
 		if(isset($_GET['Course']))
@@ -275,7 +226,7 @@ class CourseController extends Controller
         } else {
             $model=Course::model()->findByPk($id);
         }
-		
+        
 		if($model===null)
 			throw new CHttpException(404,'The requested page does not exist.');
 		return $model;
@@ -296,6 +247,7 @@ class CourseController extends Controller
     
     public function actionAddLesson()
     {
+        $this->layout='//layouts/column2';
         $response = array(
             'success'=>false,
             'errors'=>array()
@@ -324,6 +276,7 @@ class CourseController extends Controller
     
     public function actionRemoveLesson()
     {
+        $this->layout='//layouts/column2';
         $response = array(
             'success'=>false,
             'errors'=>array()
@@ -350,6 +303,7 @@ class CourseController extends Controller
     
     public function actionBuy($pay_type = 'promo')
     {
+        $this->layout='//layouts/column2';
         if ( Yii::app()->user->isGuest ) {
             $regModel = new RegistrationForm('quick');
         }
@@ -357,5 +311,56 @@ class CourseController extends Controller
             'model'=>new PromoCodeForm,
             'regModel'=>$regModel,
         ));
+    }
+    
+    public function actionMy($cat = false)
+    {        
+        $criteria = new CDbCriteria;
+        $criteria->with = array(
+            'user_courses'=>array(
+                'condition'=>'user_courses.user_id='.Yii::app()->user->id,
+            ),
+            'category',
+            'lessons'=>array(
+                'with'=>array(
+                    'sources'
+                ),
+            ),
+            'c_sources',
+        );
+        if ($cat) {
+            $criteria->addCondition('t.category_id=:cat');
+            $criteria->params = CMap::mergeArray($criteria->params, array(':cat'=>$cat));
+        }
+        $criteria->order = 't.category_id';
+        $courses = Course::model()->findAll($criteria);
+        
+        
+        $viewPart = '_my_courses';
+        if (count($courses) == 0) {
+            if (!$cat) {
+                $outLessons = Lesson::model()->getTopLessons();
+                $viewPart = '_no_courses';
+            } else {
+                $outLessons = Yii::app()->user->model()->getLastLessons();
+            }
+        } else {
+            $outLessons = Yii::app()->user->model()->getLastLessons();
+        }
+        
+        
+        $this->render('my', array(
+            'viewPart'=>$viewPart,
+            'courses'=>$courses,
+            'outLessons'=>$outLessons,
+        ));
+    }
+    
+    public function actionPay() {
+        if (isset($_POST['CoursePay'])) {
+            $id = $_POST['CoursePay']['course_id'];
+            $type = $_POST['CoursePay']['course_type'];
+            
+        }
     }
 }

@@ -57,7 +57,7 @@ class UserModule extends CWebModule
 	public $loginUrl = array("/user/login");
 	public $logoutUrl = array("/user/logout");
 	public $profileUrl = array("/user/profile");
-	public $returnUrl = array("/user/profile");
+	public $returnUrl = array("/user/profile/edit");
 	public $returnLogoutUrl = array("/user/login");
 	
 	
@@ -235,8 +235,9 @@ class UserModule extends CWebModule
         if (!$id&&!Yii::app()->user->isGuest)
             $id = Yii::app()->user->id;        
 		if ($id) {
-            if (!isset(self::$_users[$id])||$clearCache)
+            if (!isset(self::$_users[$id])||$clearCache) {
                 self::$_users[$id] = User::model()->with(array('profile'))->findbyPk($id);
+            }
 			return self::$_users[$id];
         } else return false;
 	}

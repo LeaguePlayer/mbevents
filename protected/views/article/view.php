@@ -15,20 +15,28 @@ $this->menu=array(
 );
 ?>
 
-<h1>View Article #<?php echo $model->id; ?></h1>
-
-<?php $this->widget('zii.widgets.CDetailView', array(
-	'data'=>$model,
-	'attributes'=>array(
-		'id',
-		'title',
-		'short_description',
-		'full_description',
-		'date_public',
-		'date_create',
-		'image',
-		'tags',
-		'status',
-		'user_id',
-	),
-)); ?>
+<section id="post-content">
+	<article>
+		<header>
+			<div class="post-info">
+				<div class="post-date"><?=date('j F Y', strtotime($model->date_public))?></div>
+				<div class="post-views"><?=$model->views?></div>
+				<div class="post-comments">0</div>
+                <?$counter = 0;?>
+                <?foreach ($model->categories as $category):?>
+                    <?if ( ((++$counter) % 2) == 0):?>
+                        <span class="yellow"><?=$category->name?></span>
+                    <?else:?>
+                        <span class="grey"><?=$category->name?></span>
+                    <?endif;?>
+                <?endforeach;?>				
+			</div>
+			<div class="clear"></div>
+			<h1><?=$model->title?></h1>
+		</header>
+		<div class="post-body">
+			<?=$model->getImage(380)?>
+			<?=$model->full_description?>
+		</div>
+	</article>
+</section>

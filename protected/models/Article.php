@@ -16,13 +16,23 @@
  */
 class Article extends CActiveRecord
 {
-    const STATUS_DRAFT = 1;
-    const STATUS_SHARED_ACCESS = 2;
-    const STATUS_LIMITED_ACCESS = 3;
+    const STATUS_DRAFT = 1; // черновик
+    const STATUS_SHARED_ACCESS = 2; // опубликовано в общей ленте
+    const STATUS_LIMITED_ACCESS = 3; // опубликовано только для зарегестрированных
     
     private $_oldTags = '';
     private $_oldCategoriesIds = array();
     private $_newCategoriesIds = array();
+    
+    public $send_notifyces;
+    public $subject_message;
+    public $notification_message;
+    
+    // атрибуты поиска
+    public $isSearch = false;
+    public $searchCategories;
+    public $searchString;
+    public $searchTags;
     
     public static function statuses($code = false)
     {
@@ -67,16 +77,16 @@ class Article extends CActiveRecord
 			array('title, full_description, date_public, status', 'required'),
 			array('status', 'numerical', 'integerOnly'=>true),
 			array('title, image', 'length', 'max'=>255),
-            array('short_description, image, tags', 'safe'),
-            // Для того, чтобы паттерн корректно сработал, приводим тэги в кодировку UTF-8
-            array('tags', 'match', 'pattern'=>'/^[A-Za-zА-Яа-я\s,]+$/u',
-                'message'=>'В тегах можно использовать только буквы.'),
-            array('tags', 'normalizeTags'),
-            array('date_public', 'date', 'format'=>array('dd.MM.yyyy')),
-            //array('date_public', 'normalizeDate'),
+                        array('short_description, image, tags, notification_message, send_notifyces, subject_message', 'safe'),
+                        // Для того, чтобы паттерн корректно сработал, приводим тэги в кодировку UTF-8
+                        array('tags', 'match', 'pattern'=>'/^[A-Za-zА-Яа-я\s,]+$/u',
+                            'message'=>'В тегах можно использовать только буквы.'),
+                        array('tags', 'normalizeTags'),
+                        array('date_public', 'date', 'format'=>array('dd.MM.yyyy')),
+                        //array('date_public', 'normalizeDate'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('id, title, short_description, full_description, date_public, date_create, status, image, tags', 'safe', 'on'=>'search'),
+			array('isSearch, searchCategories, searchString, searchTags', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -86,13 +96,22 @@ class Article extends CActiveRecord
 	public function relations()
 	{
 		return array(
-            'author'=>array(self::BELONGS_TO, 'User', 'user_id'),
-            'categories'=>array(self::MANY_MANY, 'Category', ArticleCategory::tableName().'(article_id, category_id)'),
-            'comments'=>array(self::HAS_MANY, 'Comment', 'article_id',
-                'condition'=>'comments.status='.Comment::STATUS_APPROVED,
-                'order'=>'comments.date_create DESC'),
-            'commentCount' => array(self::STAT, 'Comment', 'article_id',
-                'condition'=>'status='.Comment::STATUS_APPROVED),
+                    'author'=>array(self::BELONGS_TO, 'User', 'user_id'),
+                    'rel_categories'=>array(self::HAS_MANY, 'ArticleCategory', 'article_id'),
+                    'categories'=>array(self::MANY_MANY, 'Category', ArticleCategory::tableName().'(article_id, category_id)'),
+                    'comments'=>array(
+                        self::HAS_MANY, 
+                        'Comment', 
+                        'article_id',
+                        'condition'=>'comments.status='.Comment::STATUS_APPROVED,
+                        'order'=>'comments.date_create DESC',
+                    ),
+                    'commentCount' => array(
+                        self::STAT, 
+                        'Comment', 
+                        'article_id',
+                        'condition'=>'status='.Comment::STATUS_APPROVED
+                    ),
 		);
 	}
 
@@ -111,6 +130,9 @@ class Article extends CActiveRecord
 			'image' => 'Изображение',
 			'tags' => 'Тэги',
 			'status' => 'Статус',
+                        'send_notifyces' => 'Разослать уведомления пользователям?',
+                        'notification_message' => 'Текст сообщения для рассылки',
+                        'subject_message' => 'Тема сообщения',
 		);
 	}
     
@@ -136,25 +158,50 @@ class Article extends CActiveRecord
 	 * Retrieves a list of models based on the current search/filter conditions.
 	 * @return CActiveDataProvider the data provider that can return the models based on the search/filter conditions.
 	 */
-	public function search()
+	public function search($providerOptions = array())
 	{
 		$criteria=new CDbCriteria;
-
-		//$criteria->compare('id',$this->id);
-		//$criteria->compare('title',$this->title,true);
-		//$criteria->compare('short_description',$this->short_description,true);
-		$criteria->compare('full_description',$this->full_description,true);
-		//$criteria->compare('date_public',$this->date_public,true);
-		//$criteria->compare('date_create',$this->date_create,true);
-		//$criteria->compare('status',$this->status);
-
-		return new CActiveDataProvider($this, array(
-			'criteria'=>$criteria,
-            'pagination'=>array(
-                'pageVar'=>'page',
-                'pageSize'=>10
-            )
-		));
+        $criteria->order = 'date_public DESC';
+        if (!Yii::app()->user->isAdmin()) {
+            $criteria->addCondition('t.status<>'.Article::STATUS_DRAFT);
+        }
+        if ( Yii::app()->user->isGuest ) {
+            $criteria->addCondition('t.status='.Article::STATUS_SHARED_ACCESS);
+        }
+        $criteria->with = array('commentCount');
+        // критерии поиска
+        if (is_array($this->searchCategories) && !empty($this->searchCategories)) {
+            array_push($criteria->with, 'categories');
+            $counter = 0;
+            $params = array();
+            foreach ($this->searchCategories as $cat) {
+                $alias = ":cat".$counter++;
+                $condParts[] = "categories.id=$alias";
+                $params[$alias] = $cat;
+            }
+            $criteria->addCondition(implode(' OR ', $condParts));
+            $criteria->params = CMap::mergeArray($criteria->params, $params);
+            $criteria->together = true;
+        }
+        if (is_array($this->searchTags)) {
+            $counter = 0;
+            $params = array();
+            foreach ($this->searchTags as $tag) {
+                $alias = ":tag".$counter++;
+                $condParts[] = "t.tags LIKE $alias";
+                $params[$alias] = '%'.$tag.'%';
+            }
+            $criteria->addCondition(implode(' OR ', $condParts));
+            $criteria->params = CMap::mergeArray($criteria->params, $params);
+        }
+        if ($this->searchString !== null) {
+            $criteria->compare('t.full_description', $this->searchString, true);
+        }
+        
+        $config['criteria'] = $criteria;
+        $config['model'] = $this;
+        $config = CMap::mergeArray($config, $providerOptions);
+        return new CActiveDataProvider('Article', $config);
 	}
     
     public function normalizeTags($attribute,$params)
@@ -232,6 +279,11 @@ class Article extends CActiveRecord
         $this->_newCategoriesIds = $ids;
     }
     
+    public function getNewCategories()
+    {
+        return $this->_newCategoriesIds===null ? array() : $this->_newCategoriesIds;
+    }
+    
     public function saveImage(CUploadedFile $uploadFile)
     {
         $fileInfo = pathinfo($uploadFile->name);
@@ -254,6 +306,30 @@ class Article extends CActiveRecord
             unlink($file);
             $this->image = '';
             return true;
+        }
+    }
+    
+    public function getImage($width = false, $height = false, $alt = '')
+    {
+        if ( empty($this->image) )
+            return "";
+        $options = array();
+        if ($width) $options['width'] = $width;
+        if ($height) $options['height'] = $height;
+        return CHtml::image('/uploads/previews/'.$this->image, $alt, $options);
+    }
+    
+    public function getThumb($width = 100, $height = 80)
+    {
+        return CHtml::image("/lib/thumb/phpThumb.php?src=/uploads/previews/{$this->image}&w=$width&h=$height&zc=1&q=90");
+    }
+    
+    public function incViews()
+    {
+        $criteria = new CDbCriteria;
+        $criteria->addCondition($this->tableName().'.id='.$this->id);
+        if ( $this->updateCounters(array('views'=>1), $criteria) > 0 ) {
+            $this->views++;
         }
     }
 }

@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>Kernel Team Player example</title>
+    <meta content="text/html; charset=utf8" http-equiv="Content-Type"/>
+    <script type="text/javascript" src="kt_player.js"></script>
+    <style type="text/css">
+        body {
+            font-family: Verdana, serif;
+            font-size: 14px;
+        }
+
+        h1 {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<h1>Kernel Team Player example</h1>
+<p>- video_url = demo/demo_video.mp4</p>
+<p>- preview_url = demo/demo_preview.jpg</p>
+<p>- timeline_screens_url = demo/key.xml</p>
+<p>- timeline_screens_interval = 10</p>
+<div>
+    <textarea id="api_log" cols="10" rows="5" class="field" readonly="readonly" style="margin: 10px 0; width: 640px">API log here...</textarea>
+</div>
+<div id="kt_player" style="visibility: hidden">
+    <a href="http://adobe.com/go/getflashplayer">This page requires Adobe Flash Player</a>
+</div>
+<script type="text/javascript">
+    /* <![CDATA[ */
+    var flashvars = {
+        video_url: 'demo/demo_video.mp4',
+        preview_url: 'demo/demo_preview.jpg',
+        timeline_screens_url: 'demo/key.xml',
+        timeline_screens_interval: '10'
+    };
+    var params = {allowfullscreen: 'true', allowscriptaccess: 'always'};
+    kt_player('kt_player', 'kt_player.swf', '640', '480', flashvars, params);
+
+    function kt_player_loaded(player) {
+        log('Player loaded');
+        player.listen('ktVideoStarted', function() {
+            log('Video started');
+        });
+        player.listen('ktVideoPaused', function() {
+            log('Video paused');
+        });
+        player.listen('ktVideoStopped', function() {
+            log('Video stopped');
+        });
+        player.listen('ktVideoFinished', function() {
+            log('Video finished');
+        });
+        player.listen('ktVideoProgress', function(time) {
+            log('Video progressed to ' + time);
+        });
+    }
+
+    function log(message) {
+        document.getElementById('api_log').value += '\n' + message;
+        document.getElementById('api_log').scrollTop = document.getElementById('api_log').scrollHeight;
+    }
+    /* ]]> */
+</script>
+</body>
+</html>

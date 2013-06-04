@@ -2,7 +2,17 @@
 
 class RecoveryController extends Controller
 {
+    public $layout='//layouts/column1';
 	public $defaultAction = 'recovery';
+    
+    public function behaviors()
+    {
+        return array(
+            'articleBehavior' => array(
+                'class' => 'AutoLoadArticleBehavior',
+            ),
+        );
+    }
 	
 	/**
 	 * Recovery password
@@ -15,7 +25,7 @@ class RecoveryController extends Controller
 				$email = ((isset($_GET['email']))?$_GET['email']:'');
 				$activkey = ((isset($_GET['activkey']))?$_GET['activkey']:'');
 				if ($email&&$activkey) {
-					$form2 = new UserChangePassword;
+					$form2 = new UserChangePassword('recovery');
 		    		$find = User::model()->notsafe()->findByAttributes(array('email'=>$email));
 		    		if(isset($find)&&$find->activkey==$activkey) {
 			    		if(isset($_POST['UserChangePassword'])) {
@@ -41,19 +51,18 @@ class RecoveryController extends Controller
 			    		$form->attributes=$_POST['UserRecoveryForm'];
 			    		if($form->validate()) {
 			    			$user = User::model()->notsafe()->findbyPk($form->user_id);
-							$activation_url = 'http://' . $_SERVER['HTTP_HOST'].$this->createUrl(implode(Yii::app()->controller->module->recoveryUrl),array("activkey" => $user->activkey, "email" => $user->email));
-							
-							$subject = UserModule::t("You have requested the password recovery site {site_name}",
-			    					array(
-			    						'{site_name}'=>Yii::app()->name,
-			    					));
-			    			$message = UserModule::t("You have requested the password recovery site {site_name}. To receive a new password, go to {activation_url}.",
-			    					array(
-			    						'{site_name}'=>Yii::app()->name,
-			    						'{activation_url}'=>$activation_url,
-			    					));
-							
-			    			UserModule::sendMail($user->email,$subject,$message);
+							$recovery_url = 'http://' . $_SERVER['HTTP_HOST'].$this->createUrl(implode(Yii::app()->controller->module->recoveryUrl),array("activkey" => $user->activkey, "email" => $user->email));
+                            $notification = EmailNotification::findByType(EmailNotification::TYPE_RECOVERY_PASSWORD);
+                            if ( $notification !== null ) {
+                                $parser = new TextParser(array(
+                                    'recovery_url'=>$recovery_url,
+                                    'site_name'=>'http://'.$_SERVER['HTTP_HOST'],
+                                ));
+                                $message = $parser->decode($notification->text);
+                                $subject = $parser->decode($notification->subject);
+                                $from = $notification->from;
+                                Functions::sendMail($subject, $message, $user->email, $from);
+                            }
 			    			
 							Yii::app()->user->setFlash('recoveryMessage',UserModule::t("Please check your email. An instructions was sent to your email address."));
 			    			$this->refresh();

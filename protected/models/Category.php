@@ -92,4 +92,13 @@ class Category extends CActiveRecord
     {
         return self::model()->findAll();
     }
+    
+    public static function items($id = '')
+    {
+        $items = CHtml::listData(self::model()->findAll(), 'id', 'name');
+        if ( is_numeric($id) ) {
+            return $items[$id];
+        }
+        return $items;
+    }
 }

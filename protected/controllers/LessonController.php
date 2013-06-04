@@ -16,6 +16,7 @@ class LessonController extends Controller
 		return array(
 			'accessControl', // perform access control for CRUD operations
 			'postOnly + delete', // we only allow deletion via POST request
+            'ajaxOnly + sendNote',
 		);
 	}
 
@@ -28,16 +29,16 @@ class LessonController extends Controller
 	{
 		return array(
 			array('allow',  // allow all users to perform 'index' and 'view' actions
-				'actions'=>array('index', 'view'),
+				'actions'=>array('index', 'view', 'sendNote'),
 				'users'=>array('*'),
 			),
-//			array('allow', // allow authenticated user to perform 'create' and 'update' actions
-//				'actions'=>array('view'),
+//			array('allow',
+//				'actions'=>array('sendNote'),
 //				'users'=>array('@'),
 //			),
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete','create','update'),
-				'users'=>array('admin'),
+				'users'=>Yii::app()->getModule('user')->getAdmins(),
 			),
 			array('deny',  // deny all users
 				'users'=>array('*'),
@@ -155,11 +156,35 @@ class LessonController extends Controller
     {
         $id = Yii::app()->request->getQuery('id');
         $model = Lesson::model()->with('user_access')->findByPk($id);
-        $model->updateViewsCounter();
         if ( Yii::app()->request->isAjaxRequest ) {
             echo $this->renderPartial('_view', array('model'=>$model));
             Yii::app()->end();
         }
         $this->render('_view', array('model'=>$model));
+    }
+    
+    public function actionSendNote()
+    {
+        $model = new NoteForm;
+        $response = array(
+            'success' => false,
+            'errors' => array(),
+        );
+        if ( isset($_POST['NoteForm']) ) {
+            $model->attributes = $_POST['NoteForm'];
+            if ( $model->validate() ) {
+                if ( is_numeric($model->lesson_id) ) {
+                    $lesson = Lesson::model()->findByPk($model->lesson_id);
+                    $response['success'] = true;
+                    // отправить статью
+                    $domain = $_SERVER['HTTP_HOST'];
+                    $subject = "Заметка к видео-сессии {$lsson->name} с сайта http://{$domain}";
+                    $message = "<h1>Заметка к видео-сессии {$lesson->name}</h1><p>{$model->note}</p>";
+                    Functions::sendMail($subject, $message, $model->email, Yii::app()->user->email);
+                }
+            }
+            $response['errors'] = $model->errors;
+        }
+        echo CJSON::encode($response);
     }
 }

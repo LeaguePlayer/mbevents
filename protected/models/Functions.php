@@ -2,19 +2,24 @@
 
 class Functions
 {
-    public static function getCalendarDay($date,$checker=false)
+    public static function getCalendarDay($timestamp, $year = true)
     {
-        if(!$checker)
-            $list_mounth = array('Jan'=>'ЯНВ','Feb'=>'ФЕВ','Mar'=>'МАР','Apr'=>'АПР','May'=>'МАЙ','Jun'=>'ИЮН','Jul'=>'ИЮЛ','Aug'=>'АВГ','Sep'=>'СЕН','Oct'=>'ОКТ','Nov'=>'НОЯ','Dec'=>'ДЕК');
-        else
-            $list_mounth = array('Jan'=>'Января','Feb'=>'Февраля','Mar'=>'Марта','Apr'=>'Апреля','May'=>'Мая','Jun'=>'Июня','Jul'=>'Июля','Aug'=>'Августа','Sep'=>'Сентября','Oct'=>'Октября','Nov'=>'Ноября','Dec'=>'Декабря');
-        $month = date('M',strtotime($date));
-        $month = $list_mounth[$month];
-        $day =  date('j',strtotime($date));
-        $year =  date('Y',strtotime($date));
-        if($checker)
-            return $day.' '.$month.' '.$year;
-        else return $month;
+        $date = explode(".", date("d.m.Y", $timestamp));
+        switch ($date[1]){
+            case 1: $m='января'; break;
+            case 2: $m='февраля'; break;
+            case 3: $m='марта'; break;
+            case 4: $m='апреля'; break;
+            case 5: $m='мая'; break;
+            case 6: $m='июня'; break;
+            case 7: $m='июля'; break;
+            case 8: $m='августа'; break;
+            case 9: $m='сентября'; break;
+            case 10: $m='октября'; break;
+            case 11: $m='ноября'; break;
+            case 12: $m='декабря'; break;
+        }
+        return $year ? ($date[0].'&nbsp;'.$m.'&nbsp;'.$date[2]) : ($date[0].'&nbsp;'.$m);
     } 
     
     /**
@@ -267,5 +272,10 @@ class Functions
         } else {
             return $index;
         }
+    }
+    
+    public function getThumb($src, $width = 100, $height = 80)
+    {
+        return CHtml::image("/lib/thumb/phpThumb.php?src=$src&w=$width&h=$height&zc=1&q=90", "", array('width'=>$width, 'height'=>$height));
     }
 }

@@ -32,7 +32,7 @@ class ComponentPhVid extends AnnounceComponent
     
     public function getTitle()
     {
-        return "Видео-контент";
+        return $this->title;
     }
     
     public function render()
@@ -62,7 +62,7 @@ class ComponentPhVid extends AnnounceComponent
 		return array(
 			array('description', 'required'),
             array('photo_source', 'CImageValidator', 'types' => 'jpg, png, gif'),
-			array('video_source', 'length', 'max'=>255),
+			array('video_source, title', 'length', 'max'=>255),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
 			array('id, video_source, photo_source, description, date_create, date_update, status', 'safe', 'on'=>'search'),
@@ -87,6 +87,7 @@ class ComponentPhVid extends AnnounceComponent
 	{
 		return array(
 			'id' => 'ID',
+            'title' => 'Заголовок',
 			'video_source' => 'Ссылка на видео',
 			'photo_source' => 'Постер',
 			'description' => 'Описание',

@@ -8,6 +8,7 @@ $this->breadcrumbs=array(
 
 $this->menu=array(
 	array('label'=>'Создать статью', 'url'=>array('create')),
+    array('label'=>'Назад', 'url'=>array('/admin/index')),
 );
 ?>
 
@@ -18,8 +19,16 @@ $this->menu=array(
 	'dataProvider'=>$model->search(),
 	'filter'=>$model,
 	'columns'=>array(
-		'title',
-		'short_description',
+        array(
+            'header'=>'',
+            'type'=>'raw',
+            'value'=>'$data->getThumb()',
+        ),
+        array(
+            'name'=>'title',
+            'type'=>'raw',
+            'value'=>'CHtml::link($data->title, Yii::app()->urlManager->createUrl("/article/update", array("id"=>$data->id)))',
+        ),
 		'date_public',
 		array(
             'name'=>'status',

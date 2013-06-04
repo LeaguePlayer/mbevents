@@ -4,7 +4,6 @@ class CImageValidator extends CValidator
 {
     public $types;
     
-    
     protected function validateAttribute($object,$attribute)
 	{
         $file = $object->{$attribute};

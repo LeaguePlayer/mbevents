@@ -19,10 +19,12 @@ $this->breadcrumbs=array(
 
 <div class="form">
 <?php echo CHtml::beginForm(); ?>
+    <?php echo CHtml::hiddenField('UserLogin[backUrl]', $backUrl); ?>
 
 	<p class="note"><?php echo UserModule::t('Fields with <span class="required">*</span> are required.'); ?></p>
 	
 	<?php echo CHtml::errorSummary($model); ?>
+    
 	
 	<div class="row">
 		<?php echo CHtml::activeLabelEx($model,'username'); ?>

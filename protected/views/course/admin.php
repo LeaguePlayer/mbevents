@@ -3,31 +3,12 @@
 /* @var $model Course */
 
 $this->menu=array(
-	array('label'=>'Create Course', 'url'=>array('view', 'operation'=>'new')),
+	array('label'=>'Добавить курс', 'url'=>array('create')),
+    array('label'=>'Назад', 'url'=>array('/admin/index')),
 );
-
-Yii::app()->clientScript->registerScript('search', "
-$('.search-button').click(function(){
-	$('.search-form').toggle();
-	return false;
-});
-$('.search-form form').submit(function(){
-	$('#course-grid').yiiGridView('update', {
-		data: $(this).serialize()
-	});
-	return false;
-});
-");
 ?>
 
-<h1>Manage Courses</h1>
-
-<?php echo CHtml::link('Advanced Search','#',array('class'=>'search-button')); ?>
-<div class="search-form" style="display:none">
-<?php $this->renderPartial('_search',array(
-	'model'=>$model,
-)); ?>
-</div><!-- search-form -->
+<h1>Управление видео-курсами</h1>
 
 <?php $this->widget('zii.widgets.grid.CGridView', array(
 	'id'=>'course-grid',
@@ -37,15 +18,24 @@ $('.search-form form').submit(function(){
         array(
             'name'=>'title',
             'type'=>'raw',
-            'value'=>'CHtml::link($data->title, "/course/view?operation=edit&id=".$data->id)'
+            'value'=>'CHtml::link($data->title, Yii::app()->urlManager->createUrl("/course/update", array("id"=>$data->id)))'
         ),
-		'category_id',
+        array(
+            'name'=>'category_id',
+            'type'=>'raw',
+            'value'=>'$data->category->name',
+            'filter'=>Category::items()
+        ),
 		'video_preview',
 		'basic_cost',
 		'advanced_cost',
+        array(
+            'type'=>'raw',
+            'value'=>'CHtml::link("Вложения", Yii::app()->urlManager->createUrl("/course/manage", array("id"=>$data->id)))',
+        ),
 		array(
 			'class'=>'CButtonColumn',
-            'template'=>'{delete}'
+            'template'=>'{delete}',
 		),
 	),
 )); ?>

@@ -7,7 +7,8 @@
 
 
 $this->menu=array(
-	array('label'=>'Для печати', 'url'=>array('index')),
+	array('label'=>'Назад', 'url'=>array('/admin/index')),
+	//array('label'=>'Для печати', 'url'=>array('index')),
 );
 
 
@@ -89,7 +90,7 @@ $('.generator-form form').submit(function() {
         array(
             'name'=>'expire',
             'type'=>'raw',
-            'value'=>'($date->expire==0) ? "Не указано" : date("d.m.Y", $data->expire)'
+            'value'=>'($data->expire==0) ? "Не указано" : date("d.m.Y", $data->expire)'
         ),
 		array(
             'name'=>'status',
@@ -97,10 +98,20 @@ $('.generator-form form').submit(function() {
             'value'=>'CHtml::link($data->getStatus(), "#", array("class"=>"current_status", "rel"=>$data->id))',
             'filter'=>PromoCode::getAllStatuses()
         ),
-		array(
-			'class'=>'CButtonColumn',
-            'template'=>'{delete}',
-            'htmlOptions'=>array('width'=>'50px'),
-		),
+        array(
+            'header'=>'Пользователь',
+            'type'=>'raw',
+            'value'=>'($data->status==$data::STATUS_USED) ? $data->user->email : "-"',
+        ),
+        array(
+            'name'=>'use_date',
+            'type'=>'raw',
+            'value'=>'($data->status==$data::STATUS_USED) ? $data->getFormattedDate("use_date") : "-"'
+        ),
+//		array(
+//			'class'=>'CButtonColumn',
+//            'template'=>'{delete}',
+//            'htmlOptions'=>array('width'=>'50px'),
+//		),
 	),
 )); ?>

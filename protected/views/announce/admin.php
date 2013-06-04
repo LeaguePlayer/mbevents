@@ -8,7 +8,8 @@ $this->breadcrumbs=array(
 );
 
 $this->menu=array(
-	array('label'=>'Create Announce', 'url'=>array('view', 'operation'=>'new')),
+	array('label'=>'Создать анонс', 'url'=>array('view', 'operation'=>'new')),
+    array('label'=>'Назад', 'url'=>array('/admin/index')),
 );
 ?>
 

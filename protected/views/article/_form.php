@@ -4,7 +4,7 @@
 /* @var $form CActiveForm */
 ?>
 
-<div class="form">
+<div class="form stat">
 
 <?php $form=$this->beginWidget('CActiveForm', array(
 	'id'=>'article-form',
@@ -22,18 +22,38 @@
 		<?php echo $form->error($model,'title'); ?>
 	</div>
     
+    <div class="row">
+		<?php echo $form->labelEx($model,'image'); ?>
+        <div class="row_values">
+            <?=$model->getImage(380);?>
+            <?php
+                $this->widget('CMultiFileUpload', array(
+                    'model'=>$model,
+                    'attribute'=>'image',
+                    'name'=>'image',
+                    'accept'=>'jpg|gif|png',
+                    //'maxSize' => 5 * (1024 * 1024),
+                    'max'=>1,
+                    'duplicate'=>'Этот файл уже выбран',
+                    'denied'=>'Неподдерживаемый формат файла',
+                ));
+            ?>
+    		<?php echo $form->error($model,'image'); ?>
+        </div>
+	</div>
+    
     <fieldset>
-        <legend>Категории</legend>
+        <label>Категории</label>
+        <div class="row_values">
         <?php
-            $allCategories = Category::getAll();
+            $allCategories = Category::model()->findAll();
             foreach ($allCategories as $category) {
                 $checked = $model->belongsToCategory($category->id);
-                echo CHtml::openTag('div', array('class'=>'row'));
                 echo CHtml::checkBox("Article[categories][{$category->id}]", $checked);
                 echo CHtml::label($category->name, 'Article_categories_'.$category->id);
-                echo CHtml::closeTag('div');
             }
         ?>
+        </div>
     </fieldset>
 
 	<div class="row">
@@ -49,10 +69,13 @@
             'model' => $model,
             'attribute' => 'full_description',
             // Optional config
-            'compressorRoute' => '/tinyMce/compressor',
+            //'compressorRoute' => '/tinyMce/compressor',
             //'spellcheckerUrl' => array('tinyMce/spellchecker'),
             // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
             //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+            'settings'=>array(
+                'content_css' => $this->getAssetsBase().'/css/style.css',
+            ),            
             'fileManager' => array(
                 'class' => 'ext.elFinder.TinyMceElFinder',
                 'connectorRoute'=>'/elfinder/connector',
@@ -84,31 +107,53 @@
 		<?php echo $form->error($model,'date_public'); ?>
 	</div>
 
-    <fieldset>
-        <legend>Изображение</legend>
-        <div class="row">
-    		<?php echo $form->labelEx($model,'image'); ?>
-    		<?php
-            $this->widget('CMultiFileUpload', array(
-                'model'=>$model,
-                'attribute'=>'image',
-                'name'=>'image',
-                'accept'=>'jpg|gif|png',
-                //'maxSize' => 5 * (1024 * 1024),
-                'max'=>1,
-                'duplicate'=>'Этот файл уже выбран',
-                'denied'=>'Неподдерживаемый формат файла',
-            ));
-            ?>
-    		<?php echo $form->error($model,'image'); ?>
-    	</div>
-    </fieldset>
-
 	<div class="row">
 		<?php echo $form->labelEx($model,'tags'); ?>
 		<?php echo $form->textArea($model,'tags',array('rows'=>1, 'cols'=>50)); ?>
 		<?php echo $form->error($model,'tags'); ?>
 	</div>
+    
+    
+    <fieldset>
+        <legend>Параметры рассылки</legend>
+            
+        <div class="row">
+    		<?php echo $form->checkBox($model,'send_notifyces'); ?>
+            <?php echo $form->labelEx($model,'send_notifyces'); ?>
+            <p class="note">Этот параметр будет проигнорирован для статьи со статусом "Черновик"</p>
+    	</div>
+        
+        <div class="row">
+    		<?php echo $form->labelEx($model,'subject_message'); ?>
+    		<?php echo $form->textField($model,'subject_message',array('size'=>60,'maxlength'=>255)); ?>
+    	</div>
+        
+        <div class="row">
+    		<?php echo $form->labelEx($model,'notification_message'); ?>
+    		<?php
+            $this->widget('ext.tinymce.TinyMce', array(
+                'model' => $model,
+                'attribute' => 'notification_message',
+                // Optional config
+                //'compressorRoute' => '/tinyMce/compressor',
+                //'spellcheckerUrl' => array('tinyMce/spellchecker'),
+                // or use yandex spell: http://api.yandex.ru/speller/doc/dg/tasks/how-to-spellcheck-tinymce.xml
+                //'spellcheckerUrl' => 'http://speller.yandex.net/services/tinyspell',
+                'settings'=>array(
+                    'content_css' => $this->getAssetsBase().'/css/style.css',
+                ),
+                'fileManager' => array(
+                    'class' => 'ext.elFinder.TinyMceElFinder',
+                    'connectorRoute'=>'/elfinder/connector',
+                ),
+                'htmlOptions' => array(
+                    'rows' => 6,
+                    'cols' => 60,
+                ),
+            ));
+            ?>
+    	</div>
+    </fieldset>
 
 	<div class="row">
 		<?php echo $form->labelEx($model,'status'); ?>
@@ -117,7 +162,9 @@
 	</div>
 
 	<div class="row buttons">
-		<?php echo CHtml::submitButton($model->isNewRecord ? 'Создать' : 'Сохранить'); ?>
+                <button type="submit" name="Article[status]" value="<?=Article::STATUS_SHARED_ACCESS?>">Опубликовать</button>
+                <button type="submit" name="Article[status]" value="<?=Article::STATUS_DRAFT?>">Сохранить</button>
+                <a href="<?=$this->createUrl('/article/admin')?>">Отмена</a>
 	</div>
 
 <?php $this->endWidget(); ?>

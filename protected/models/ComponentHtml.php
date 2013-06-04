@@ -56,12 +56,11 @@ class ComponentHtml extends AnnounceComponent
 	{
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.
-		return array(
-			array('title, description', 'required'),
+        return CMap::mergeArray(parent::rules(), array(
+            array('title, description', 'required'),
 			array('title', 'length', 'max'=>255),
-            
 			array('id, title, description, date_create, date_update', 'safe', 'on'=>'search'),
-		);
+        ));
 	}
 
 	/**

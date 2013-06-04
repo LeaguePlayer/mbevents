@@ -1,0 +1,693 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Kernel Team Flash / HTML5 Video Player v5.x</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="styles/doc.css"/>
+</head>
+<body>
+    <div id="header"><div id="header_inner"></div></div>
+    <div id="documentation">
+        <h1 id="section_system_settings">Kernel Team Flash / HTML5 Video Player v5.x</h1>
+        <h2 id="section_system_settings_contents">Contents</h2>
+        <div class="contents">
+            <a href="#section_basic" class="l2">1. General info</a><br/>
+            <a href="#section_installation" class="l2">2. Installation</a><br/>
+            <a href="#section_separate_include" class="l2">3. Including player into your HTML code</a><br/>
+            <a href="#section_separate_html5" class="l2">4. Flash vs HTML5 mode</a><br/>
+            <a href="#section_separate_options" class="l2">5. Player initialization variables</a><br/>
+            <a href="#section_separate_js_api" class="l2">6. JavaScript API</a><br/>
+            <a href="#section_separate_files" class="l2">7. Player files list</a>
+        </div>
+        <h2 id="section_basic">1. General info</h2>
+        <p>
+            Kernel Team Video Player is developed for extensive monetization of your online websites. Player supports
+            huge amount of advertising in different places and on different events, such as pre-roll, post-roll ads,
+            advertising on pause / stop, advertising in controlbar and JavaScript API for HTML-based advertising.
+        </p>
+        <p>
+            Player works in two modes: local mode and "embed" mode. Local mode is the default mode when you use player
+            on your own website. Embed mode is enabled when your player is being used from third-party websites using
+            embed code. In this mode there is no ability for your so-called embedders to disable or change your
+            advertising. So when somebody uses embed codes on your videos - your advertising will be always displayed
+            as configured. Moreover you have the only place to control player behavior in embed mode, so if you
+            change anything in your embed configuration, this change will be automatically propagated to all third-party
+            websites that are referring to your embed code.
+        </p>
+        <p>
+            Kernel Team Video Player can be used for free without any limitations.
+        </p>
+        <h2 id="section_installation">2. Installation</h2>
+        <p>
+            Consider the following steps to install Kernel Team Video Player:
+        </p>
+        <ul>
+            <li>
+                Unpack archive into <b>/%DOMAIN_ROOT%/kt_player</b> folder. If you want to install player into a
+                different folder, make sure you update player .htaccess file with your new value.
+            </li>
+            <li>
+                In <b>/%DOMAIN_ROOT%/kt_player/.htaccess</b> file change <b>%DOMAIN%</b> token with your domain name.
+            </li>
+            <li>
+                Copy <b>crossdomain.xml</b> file into your domain root folder. If you are going to use images or videos
+                from other domains (and subdomains), you should copy this file to every such domain (subdomain).
+            </li>
+        </ul>
+        <p class="important">
+            <b>Important!</b> Any SWF files, which are used via player API should be implemented using ActionScript3.
+        </p>
+        <h2 id="section_separate_include">3. Including player into your HTML code</h2>
+        <p>
+            Player can be embeded into your HTML page using <b>kt_player.js</b> script. Here is code example
+            (assuming that you copied player files into <b>/kt_player</b> folder):
+        </p>
+        <p class="code">
+            <span class="comment">&lt;!-- include JavaScript --&gt;</span><br/>
+            &lt;script type="text/javascript" src="/kt_player/kt_player.js"&gt;&lt;/script&gt;<br/><br/>
+
+            <span class="comment">&lt;!-- define hidden container for player, id="kt_player" identifies it --&gt;</span><br/>
+            &lt;div id="kt_player" style="visibility: hidden"&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&lt;a href="http://adobe.com/go/getflashplayer"&gt;This page requires Adobe Flash Player&lt;/a&gt;<br/>
+            &lt;/div&gt;<br/><br/>
+
+            <span class="comment">&lt;!-- use player insertion code --&gt;</span><br/>
+            &lt;script type="text/javascript"&gt;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// configure initialization variables (we used only 2 for simplicity)</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;var flashvars = {<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;video_url: 'http://domain.com/kt_player/demo/demo_video.mp4',<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;preview_url: 'http://domain.com/kt_player/demo/demo_preview.jpg'<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;};<br/><br/>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// configure HTML object parameters</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;var params = {allowfullscreen: 'true', allowscriptaccess: 'always'};<br/><br/>
+
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// call player javascript</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// 'kt_player' - player container identifier</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// '/kt_player/kt_player.swf' - player file URL</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// '600' - player width</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// '400' - player height</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// flashvars - the list of all initialization variables created above</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// params - the list of all HTML object parameters created above</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;var player_obj = kt_player('kt_player', '/kt_player/kt_player.swf', '600', '400', flashvars, params);<br/><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// use player_obj to configure events handling (see JavaScript API section)</span><br/>
+            &lt;/script&gt;<br/>
+        </p>
+        <p>
+            After the page display DIV container with id="kt_player" will contain player. In most cases you
+            will only need to change initialization variables (<b>flashvars</b> object) and player size (600х400).
+        </p>
+        <h2 id="section_separate_html5">4. Flash vs HTML5 mode</h2>
+        <p>
+            Kernel Team Video Player supports basic HTML5 mode to make sure that your videos can be played by mobile
+            devices. Player uses the following approach to define which mode should be used for the current browser:
+        </p>
+        <div class="table">
+            <table>
+                <colgroup>
+                    <col width="10%"/>
+                    <col/>
+                </colgroup>
+                <tr class="header">
+                    <td>Mode</td>
+                    <td>Description</td>
+                    <td>Conditions</td>
+                </tr>
+                <tr>
+                    <td>Flash</td>
+                    <td>Default. Works for most desktop devices.</td>
+                    <td>Browser supports Flash.</td>
+                </tr>
+                <tr>
+                    <td>HTML5 video</td>
+                    <td>Browser bundled player with only JavaScript advertising support (using player JS API). Works for most of mobile devices.</td>
+                    <td>
+                        (a) Browser doesn't support Flash.<br/>
+                        (b) Video is encoded in MP4 format (h264 codec).<br/>
+                        (c) Browser supports playing MP4 format.
+                    </td>
+                </tr>
+                <tr>
+                    <td>Native video</td>
+                    <td>Plain link to MP4 file. Works for most of mobile devices.</td>
+                    <td>
+                        (a) Browser doesn't support Flash.<br/>
+                        (b) Video is encoded in MP4 format.<br/>
+                        (c) Browser doesn't support playing MP4 format.
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <p class="important">
+            <b>Important!</b> HTML5 / Native modes will be used only with MP4 files. All modern mobile devices do
+            support MP4 format.
+        </p>
+        <h2 id="section_separate_options">5. Player initialization variables</h2>
+        <p>
+            Player initialization variables (<b>FlashVars</b>) can be used to specify player behavior and advertising.
+            The table below lists all supported variables:
+        </p>
+        <div class="table">
+            <table>
+                <colgroup>
+                    <col width="10%"/>
+                    <col/>
+                </colgroup>
+                <tr class="header">
+                    <td>Variable name</td>
+                    <td>Description</td>
+                </tr>
+                <tr>
+                    <td>scaling</td>
+                    <td>
+                        You can use this variable to specify non-default scaling algorithm. By default player will keep
+                        video aspect ratio, which produces black areas either horizontally or vertically. If you
+                        specify <b>fill</b> value for this parameter - video will be stretched into the whole player
+                        area ignoring aspect ratio. If you want your video to keep aspect ratio while occupying the
+                        whole player area you can specify <b>crop</b> value for this variable: in this case video will
+                        be cropped either horizontally (from left and right) or vertically (from top and bottom).
+                    </td>
+                </tr>
+                <tr>
+                    <td>license_code</td>
+                    <td>
+                        License code (optional).
+                    </td>
+                </tr>
+                <tr>
+                    <td>video_url</td>
+                    <td>
+                        FLV / MP4 video file URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>preview_frame</td>
+                    <td>
+                        Video frame (in seconds) which will be displayed before video playback is started.
+                    </td>
+                </tr>
+                <tr>
+                    <td>preview_url</td>
+                    <td>
+                        Preview image URL which will be displayed before video playback is started.
+                    </td>
+                </tr>
+                <tr>
+                    <td>flv_stream</td>
+                    <td>
+                        Should be set to <b>false</b> if web server does not support streaming.
+                    </td>
+                </tr>
+                <tr>
+                    <td>autoplay</td>
+                    <td>
+                        If this variable is set to <b>true</b> - video playback will be started automatically after
+                        player initialization.
+                    </td>
+                </tr>
+                <tr>
+                    <td>logo_src</td>
+                    <td>
+                        Custom logo URL (jpg, png) which will be displayed on top of video.
+                    </td>
+                </tr>
+                <tr>
+                    <td>logo_position</td>
+                    <td>
+                        Custom logo position (should be specified in square brackets like <b>[x,y]</b>). Related to
+                        top-left player corner.
+                    </td>
+                </tr>
+                <tr>
+                    <td>logo_url</td>
+                    <td>
+                        Logo click URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>video_click_url</td>
+                    <td>
+                        Video playback area click URL. If not specified (by default) video playback will be paused as
+                        clicked on playback area.
+                    </td>
+                </tr>
+                <tr>
+                    <td>bt</td>
+                    <td>
+                        Video buffer time in seconds (the default is 5 seconds).
+                    </td>
+                </tr>
+                <tr>
+                    <td>skin</td>
+                    <td>
+                        Supports 2 skins: <b>1</b> - black (default), <b>2</b> - white.
+                    </td>
+                </tr>
+                <tr>
+                    <td>hide_controlbar</td>
+                    <td>
+                        Configures controlbar behavior: <b>0</b> - display always (by default), <b>1</b>
+                        - hide automatically if user is not active, <b>2</b> - never display controlbar.
+                    </td>
+                </tr>
+                <tr>
+                    <td>mlogo</td>
+                    <td>
+                        Text string to be displayed on controlbar.
+                    </td>
+                </tr>
+                <tr>
+                    <td>mlogo_link</td>
+                    <td>
+                        Controlbar text click URL (for text specified with <b>mlogo</b> variable).
+                    </td>
+                </tr>
+                <tr>
+                    <td>embed</td>
+                    <td>
+                        Enables embed code display inside the player if specified as <b>1</b>. Embed code is not
+                        displayed by default. The HTML code to display should be provided using JavaScript API
+                        (described later).
+                    </td>
+                </tr>
+                <tr>
+                    <td>permalink_url</td>
+                    <td>
+                        URL to your website where this video is displayed. If specified, player will display small icon
+                        which allows copy this URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>urls_in_same_window</td>
+                    <td>
+                        The global variable to force all clicks from within the player to be opened in the same
+                        browser window. Specify <b>1</b> in order to enable it. By default all clicks will be opened
+                        in separate windows.
+                    </td>
+                </tr>
+                <tr>
+                    <td>prtext</td>
+                    <td>
+                        Can be used to periodically display small portions of text in random player corners. You can
+                        use this feature to protect your content from display grabbers (for example display user's IP).
+                    </td>
+                </tr>
+                <tr>
+                    <td>prtime</td>
+                    <td>
+                        Interval in seconds to display text configured in <b>prtext</b> variable.
+                    </td>
+                </tr>
+                <tr>
+                    <td>related</td>
+                    <td>
+                        Related plugin URL to display related videos after playback is finished. We provide
+                        <b>related.swf</b> plugin and its source code in <b>related.fla</b>.
+                    </td>
+                </tr>
+                <tr>
+                    <td>related_data</td>
+                    <td>
+                        Related plugin configuration XML file URL. The file lists related videos in the predefined
+                        format. The example of such file is provided as <b>related.xml</b>.
+                    </td>
+                </tr>
+                <tr>
+                    <td>timeline_screens_url</td>
+                    <td>
+                        Timeline screenshots configuration XML file URL. The file lists timeline screenshots. The
+                        example of such file is provided as <b>key.xml</b>.
+                    </td>
+                </tr>
+                <tr>
+                    <td>timeline_screens_interval</td>
+                    <td>
+                        Interval to display timeline screenshots (in seconds).
+                    </td>
+                </tr>
+                <tr>
+                    <td>video_url_text</td>
+                    <td>
+                        Main video stream title. It will be displayed only if <b>video_alt_url</b> variable is
+                        specified (see below).
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        video_alt_url<br/>
+                        video_alt_url_text<br/>
+                        video_alt_url_redirect
+                    </td>
+                    <td>
+                        This set of variables can be used to enable the dropdown list of different video streams
+                        (for example, 480p, 720p HD). If <b>video_alt_url</b> variable is specified, player will
+                        display dropdown list with 2 elements in controlbar: (1) the first element plays video stream
+                        specified by <b>video_url</b> variable and is rendered with title specified in
+                        <b>video_url_text</b> variable; (2) the second element is rendered with title specified in
+                        <b>video_alt_url_text</b> variable and either plays video stream configured in
+                        <b>video_alt_url</b> variable, or redirects user to the URL configured in <b>video_alt_url</b>
+                        variable if <b>video_alt_url_redirect</b> is set to <b>1</b>. The example will be described
+                        later.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        video_alt_url2<br/>
+                        video_alt_url2_text<br/>
+                        video_alt_url2_redirect
+                    </td>
+                    <td>
+                        Can be used in the same way as previous variable set in order to display additional dropdown
+                        list item.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        video_alt_url3<br/>
+                        video_alt_url3_text<br/>
+                        video_alt_url3_redirect
+                    </td>
+                    <td>
+                        Can be used in the same way as previous variable set in order to display additional dropdown
+                        list item.
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        video_alt_url4<br/>
+                        video_alt_url4_text<br/>
+                        video_alt_url4_redirect
+                    </td>
+                    <td>
+                        Can be used in the same way as previous variable set in order to display additional dropdown
+                        list item.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_pre_src</td>
+                    <td>
+                        Pre-roll advertising URL (video - flv, swf, or image - jpg, png). Pre-roll advertising is
+                        displayed before video playback is started.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_pre_duration</td>
+                    <td>
+                        Pre-roll advertising duration in seconds (applicable for images).
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_pre_url</td>
+                    <td>
+                        Pre-roll advertising click URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_post_src</td>
+                    <td>
+                        Post-roll advertising URL (video - flv, swf, or image - jpg, png). Post-roll advertising is
+                        displayed after video playback is finished.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_post_duration</td>
+                    <td>
+                        Post-roll advertising duration in seconds (applicable for images).
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_post_url</td>
+                    <td>
+                        Post-roll advertising click URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_pause_src</td>
+                    <td>
+                        Advertising-on-pause URL (image - jpg, png). Advertising-on-pause is displayed if user pauses
+                        video playback.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_pause_url</td>
+                    <td>
+                        Advertising-on-pause click URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_stop_src</td>
+                    <td>
+                        Advertising-on-stop URL (image - jpg, png). Advertising-on-stop is displayed if user stops
+                        video playback.
+                    </td>
+                </tr>
+                <tr>
+                    <td>adv_stop_url</td>
+                    <td>
+                        Advertising-on-stop click URL.
+                    </td>
+                </tr>
+                <tr>
+                    <td>sec</td>
+                    <td>
+                        Provides ability to limit video playback duration. If this variable is used user will be
+                        able to see only first N seconds, which is specified by this variable. <b>Important!</b>
+                        This variable works correctly only without streaming support (see <b>flv_stream</b> variable).
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <p>
+            Lets look into the small example of alternative video streams configuration. Suppose we need to display
+            the following items in dropdown list:
+        </p>
+        <ul>
+            <li>360p - displays video stream with 360 pixel height.</li>
+            <li>480p - displays video stream with 480 pixel height.</li>
+            <li>
+                720p HD - redirects user to signup / payment page, as HD video is only available for premium members.
+            </li>
+        </ul>
+        <p>
+            Initialization variables for this usecase are the following:
+        </p>
+        <ul>
+            <li><b>video_url</b> = http://domain.com/videos/my_video_360.mp4 (will be initially selected and played)</li>
+            <li><b>video_url_text</b> = 360p</li>
+            <li><b>video_alt_url</b> = http://domain.com/videos/my_video_480.mp4 (will be played if users switches to this item)</li>
+            <li><b>video_alt_url_text</b> = 480p</li>
+            <li><b>video_alt_url2</b> = http://domain.com/signup.php (will be redirected to this URL if users switches to this item)</li>
+            <li><b>video_alt_url2_text</b> = 720p HD</li>
+            <li><b>video_alt_url2_redirect</b> = 1</li>
+        </ul>
+        <p class="important">
+            <b>Important!</b> Player can use files (images / video) from third-party domains and sub-domains only if
+            their document root contains crossdomain.xml security policy file. This file is bundled with player
+            installation archive and should be copied to any domains and sub-domains which content you will be using.
+        </p>
+        <p>
+            Player configuration in "embed" mode is being provided by <b>embed.xml</b> file located in the same folder
+            as player.
+        </p>
+        <h2 id="section_separate_js_api">6. JavaScript API</h2>
+        <p>
+            JavaScript API can be used to pass embed code which will be displayed inside player (if <b>embed</b>
+            initialization variable is set to 1). In order to specify embed code you should define the following
+            JavaScript function:
+        </p>
+        <p class="code">
+            function getEmbed() {<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;return '%EMBED_CODE_GOES_HERE%';<br/>
+            }<br/>
+        </p>
+        <p>
+            In this function you should replace <b>%EMBED_CODE_GOES_HERE%</b> with embed code you want to be used.
+            There can be several embed code concepts:
+        </p>
+        <ul>
+            <li>
+                Classic embed code is supported only by Flash and does not provide ability to use JavaScript API:
+                <span class="code">
+                    &lt;object id="kt_player" name="kt_player" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=9,0,0,0" width="600" height="400"&gt;<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;param name="allowscriptaccess" value="always"/&gt;<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;param name="allowFullScreen" value="true"/&gt;<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;param name="movie" value="http://%YOUR_DOMAIN_HERE%/kt_player/kt_player.swf"/&gt;<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;param name="flashvars" value="video_url=%VIDEO_URL%&amp;amp;preview_url=%PREVIEW_IMAGE_URL%"/&gt;<br/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&lt;embed src="http://%YOUR_DOMAIN_HERE%/kt_player/kt_player.swf?video_url=%VIDEO_URL%&amp;amp;preview_url=%PREVIEW_IMAGE_URL%" width="600" height="400" allowfullscreen="true" allowscriptaccess="always" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"/&gt;<br/>
+                    &lt;/object>
+                </span>
+            </li>
+            <li>
+                Iframe embed code is an iframe element, which refers to a video player page on your site. Iframe embed
+                code will work in all modes and also fully supports JavaScript API. Using this type of embed code
+                assumes that your site has functionality, which can display player based on the video ID passed.
+                <span class="code">
+                    &lt;iframe width="600" height="400" src="http://%YOUR_DOMAIN_HERE%/embed/%VIDEO_ID%" frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen&gt;&lt;/iframe&gt;
+                </span>
+            </li>
+        </ul>
+        <p class="important">
+            <b>Important!</b> If you don't declare getEmbed() function or don't return any value from it, player will
+            generate embed code automatically based on initialization variables passed to it. In this case embed code
+            will have the same size as configured at the current page. You can use getEmbed() function in order to
+            give users embed code with another data (another size for example).
+        </p>
+        <p>
+            Kernel Team Player also supports many JavaScript callbacks. You can use them as you need:
+        </p>
+        <p class="code">
+            var player_obj = kt_player('kt_player', '/kt_player/kt_player.swf', '600', '400', flashvars, params);<br/>
+            player_obj.listen('ktVideoStarted', function() {alert('Video started');});<br/>
+            player_obj.listen('ktVideoPaused', function() {alert('Video paused');});<br/>
+            player_obj.listen('ktVideoStopped', function() {alert('Video stopped');});<br/>
+            player_obj.listen('ktVideoScrolled', function(time) {alert('Video scrolled to ' + time + ' seconds');});<br/>
+            player_obj.listen('ktVideoProgress', function(time) {alert('Video played to ' + time + ' seconds');});<br/>
+            player_obj.listen('ktVideoFinished', function() {alert('Video finished');});<br/>
+            player_obj.listen('ktFullScreenActivated', function() {alert('Player goes to full screen mode');});<br/>
+            player_obj.listen('ktFullScreenDeactivated', function() {alert('Player goes to normal mode');});<br/>
+            player_obj.listen('ktPreRollStarted', function() {alert('Configured pre-roll ad started');});<br/>
+            player_obj.listen('ktPreRollFinished', function() {alert('Configured pre-roll ad finished');});<br/>
+            player_obj.listen('ktPostRollStarted', function() {alert('Configured post-roll ad started');});<br/>
+            player_obj.listen('ktPostRollFinished', function() {alert('Configured post-roll ad finished');});<br/>
+            <br/>
+            player_obj.listen('ktVideoFormatChanging', function(format) {<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;alert('Video format is attempted to be changed to: ' + format);<br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// this can be used to show user HTML content on video format change</span><br/>
+                &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// return 'true' (as string) if you want player to cancel default behavior</span><br/>
+            });
+        </p>
+        <p>
+            If you need to initialize events handling from the outside code, you can define kt_player_loaded function,
+            which will be called after player initialization:
+        </p>
+        <p class="code">
+            function kt_player_loaded(player_obj) {<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment">// configure events handling</span><br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;player_obj.listen(...);<br/>
+            }<br/>
+        </p>
+        <p>
+            When initialized, player will change its DIV-container styles so that it is possible to easily display
+            HTML layers above player (e.g. ads, floating banners, additional menus):
+        </p>
+        <p class="code">
+            container styles {<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;width: 600px;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;height: 400px;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;position: relative;<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;overflow: hidden;<br/>
+            }<br/><br/>
+        </p>
+        <p>
+            Additional player control API:
+        </p>
+        <p class="code">
+            <span class="comment">// get player DIV-container</span><br/>
+            player_obj.container();<br/><br/>
+            <span class="comment">// start playback</span><br/>
+            player_obj.play();<br/><br/>
+            <span class="comment">// pause playback</span><br/>
+            player_obj.pause();<br/><br/>
+        </p>
+        <h2 id="section_separate_files">7. Player files list</h2>
+        <p>
+            Here is the list of all files bundled with player and their description:
+        </p>
+        <div class="table">
+            <table>
+                <colgroup>
+                    <col width="10%"/>
+                    <col/>
+                </colgroup>
+                <tr class="header">
+                    <td>Filename</td>
+                    <td>Description</td>
+                </tr>
+                <tr>
+                    <td>.htaccess</td>
+                    <td>
+                        Contains redirection rules, which switch player into "embed" mode for all requests from
+                        third-party domains.
+                    </td>
+                </tr>
+                <tr>
+                    <td>btn_play.jpg</td>
+                    <td>
+                        Main play button which is displayed in HTML5 mode on top of player.
+                    </td>
+                </tr>
+                <tr>
+                    <td>embed.php</td>
+                    <td>
+                        PHP code used to enable "embed" mode for third-party domains. Works together with
+                        <b>.htaccess</b>.
+                    </td>
+                </tr>
+                <tr>
+                    <td>embed.xml</td>
+                    <td>
+                        "Embed" mode configuration. Modify this file to configure your player behavior in "embed"
+                        mode.
+                    </td>
+                </tr>
+                <tr>
+                    <td>example.html</td>
+                    <td>
+                        Player usage example.
+                    </td>
+                </tr>
+                <tr>
+                    <td>expressInstall.swf</td>
+                    <td>
+                        Flash update component from Adobe.
+                    </td>
+                </tr>
+                <tr>
+                    <td>kt_player.js</td>
+                    <td>
+                        JavaScript to embed player into HTML.
+                    </td>
+                </tr>
+                <tr>
+                    <td>kt_player.swf</td>
+                    <td>
+                        Player itself.
+                    </td>
+                </tr>
+                <tr>
+                    <td>demo/crossdomain.xml</td>
+                    <td>
+                        This file should be copied into document root of all domains (and sub-domains) which store
+                        any data used by player.
+                    </td>
+                </tr>
+                <tr>
+                    <td>demo/key.xml</td>
+                    <td>
+                        Timeline screenshots configuration example. This file should be used for
+                        <b>timeline_screens_url</b> initialization variable.
+                    </td>
+                </tr>
+                <tr>
+                    <td>demo/keyX.jpg</td>
+                    <td>
+                        Example timeline screenshots.
+                    </td>
+                </tr>
+                <tr>
+                    <td>demo/related.fla</td>
+                    <td>
+                        Source code / template for related plugin.
+                    </td>
+                </tr>
+                <tr>
+                    <td>demo/related.swf</td>
+                    <td>
+                        Demo related plugin. This file should be used for <b>related</b> initialization variable.
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>
+</html>

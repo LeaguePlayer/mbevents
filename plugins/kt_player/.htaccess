@@ -1,0 +1,18 @@
+RewriteEngine on
+Options +FollowSymlinks
+RewriteBase /kt_player
+
+RewriteCond %{HTTP_USER_AGENT} ^.*Opera.*
+RewriteCond %{QUERY_STRING} !^force_embed=true.*
+RewriteCond %{HTTP_REFERER} ^.*force_embed=true.*
+RewriteRule ^kt_player\.swf$ embed.php?force_embed=true [L,QSA]
+
+RewriteCond %{QUERY_STRING} !^$
+RewriteCond %{HTTP_USER_AGENT} ^.*Safari.*
+RewriteCond %{QUERY_STRING} !^force_embed=true.*
+RewriteRule ^kt_player\.swf$ embed.php?force_embed=true [L,QSA]
+
+RewriteCond %{HTTP_USER_AGENT} !^.*Safari.*
+RewriteCond %{HTTP_REFERER} !^http://(www\.)?mbevents.loc.*
+RewriteCond %{QUERY_STRING} !^force_embed=true.*
+RewriteRule ^kt_player\.swf$ embed.php?force_embed=true [L,QSA]

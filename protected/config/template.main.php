@@ -7,7 +7,7 @@
 // CWebApplication properties can be configured here.
 return array(
 	'basePath'=>dirname(__FILE__).DIRECTORY_SEPARATOR.'..',
-	'name'=>'MB Events',
+	'name'=>'Блог Брайна Трейси',
     'sourceLanguage'=>'ru',
     'language' => 'ru',
     'charset'=>'UTF-8',
@@ -30,7 +30,9 @@ return array(
         'application.modules.user.models.*',
         'application.modules.user.components.*',
 	),
-
+    'aliases' => array(
+        'xupload' => 'ext.xupload'
+    ),
 	'modules'=>array(
 		
 		'gii'=>array(
@@ -66,17 +68,19 @@ return array(
 			'urlFormat'=>'path',
             'showScriptName'=>false,
 			'rules'=>array(
-                //'uploads'=>'site/',
+                'video/out/<alias>'=>'video/out',
+                'course/view/<id:\d+>'=>'course/view',
+                'course/<id:\d+>'=>'course/go',
 				'<controller:\w+>/<id:\d+>'=>'<controller>/view',
 				'<controller:\w+>/<action:\w+>/<id:\d+>'=>'<controller>/<action>',
 				'<controller:\w+>/<action:\w+>'=>'<controller>/<action>',
 			),
 		),
 		'db'=>array(
-			'connectionString' => 'mysql:host=localhost;dbname=mbevents',
+			'connectionString' => 'mysql:host=localhost;dbname=***',
 			'emulatePrepare' => true,
-			'username' => 'dev_mbevents',
-			'password' => 'qwe123',
+			'username' => '***',
+			'password' => '***',
 			'charset' => 'utf8',
 		),
 		'errorHandler'=>array(
@@ -134,6 +138,7 @@ return array(
 		// this is used in contact page
 		'adminEmail'=>'support@amobile-studio.ru',
         'commentNeedApproval'=>true,
+        'MAX_LESSON_FILE_SIZE'=>'1000', // Mb
         'MAX_SOURCE_FILE_SIZE'=>'20', // Mb
 	),
 );

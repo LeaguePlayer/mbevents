@@ -1,0 +1,104 @@
+/*
+Переопределение стилей для эелементов форм и оформления страниц
+*/
+@import url("style.css");
+
+
+.tabs {
+	display: inline-block;
+	vertical-align: top;
+	width: 440px;
+	padding: 10px;
+	border: 2px solid #000;
+    margin-top: 10px;
+}
+
+.tab-content {
+	min-height: 50px;
+	padding: 5px;
+	border: 1px solid #000;
+}
+
+.lesson-list {
+	display: inline-block;
+	vertical-align: top;
+	width: 200px;
+	padding: 10px;
+	border: 2px solid #000;
+	min-height: 80px;
+	border-radius: 5px;
+    background: #fff;
+    margin-top: 10px;
+}
+
+.lesson-item {
+	padding: 5px;
+	border: 1px solid #000;
+	margin: 2px 0;
+	background: #fff;
+}
+
+.removeButton {
+	float: right;
+	text-decoration: none;
+	color: #0066CC;
+}
+
+.form .row_values {
+    display: inline-block;
+    vertical-align: middle;
+    width: 410px;
+}
+
+.form fieldset {
+    padding: 5px;
+    border: 2px solid #000;
+    border-radius: 6px;
+    margin: 30px 0;
+}
+.form fieldset legend {
+    color: #1F759E;
+    font-size: 24px;
+    margin-left: 50px;
+    padding: 0 20px;
+    text-align: center;
+}
+
+.form #speakers {
+    padding-top: 40px;
+}
+
+#newspieker_wrap ul.nav,
+#newreview_wrap ul.nav {
+    list-style-type: none;
+}
+
+#newspieker_wrap ul.nav li,
+#newreview_wrap ul.nav li {
+    display: inline-block;
+    vertical-align: top;
+    margin-right: 10px;
+}
+
+.form #speakers .operations {
+    margin-bottom: 50px;
+    text-align: right;
+}
+
+#component_slider-form .slide_item {
+    padding: 20px 5px 5px;
+    border: 1px solid #000;
+    position: relative;
+    display: inline-block;
+    vertical-align: top;
+    border-radius: 4px;
+}
+#component_slider-form .slide_item .remove_item {
+    position: absolute;
+    top: 2px;
+    right: 5px;
+}
+
+.form #event-info .row {
+    margin: 0;
+}

@@ -8,6 +8,8 @@
  */
 class Announce extends CActiveRecord
 {
+    protected $_components;
+    
 	/**
 	 * Returns the static model of the specified AR class.
 	 * @param string $className active record class name.
@@ -36,7 +38,7 @@ class Announce extends CActiveRecord
 		return array(
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-            array('title', 'length', 'max'=>255),
+            array('title, address', 'length', 'max'=>255),
 			array('id, title', 'safe', 'on'=>'search'),
 		);
 	}
@@ -49,7 +51,7 @@ class Announce extends CActiveRecord
 		// NOTE: you may need to adjust the relation name and the related
 		// class name for the relations automatically generated below.
 		return array (
-            '_relComponents' => array(self::HAS_MANY, 'RelAnnounceComponent', 'announce_id', 'order'=>'date_create'),
+            '_relComponents' => array(self::HAS_MANY, 'RelAnnounceComponent', 'announce_id', 'order'=>'position'),
 		);
 	}
 
@@ -60,7 +62,8 @@ class Announce extends CActiveRecord
 	{
 		return array(
 			'id' => 'ID',
-            'title' => 'Заголовок'
+            'title' => 'Заголовок',
+            'address' => 'Укажите адрес проведения мероприятия',
 		);
 	}
 
@@ -84,16 +87,18 @@ class Announce extends CActiveRecord
     
     public function getComponents()
     {
-        $componnets = array();
-        foreach ($this->_relComponents as $relComponent)
-        {
-            $controller = AnnounceComponentFactory::CreateController($relComponent->component_type);
-            $model = $controller->loadModel($relComponent->component_id);
-            if ($model) {
-                array_push($componnets, $model);
+        if ( $this->_components === null ) {
+            $this->_components = array();
+            foreach ($this->_relComponents as $relComponent)
+            {
+                $controller = AnnounceComponentFactory::CreateController($relComponent->component_type);
+                $model = $controller->loadModel($relComponent->component_id);
+                if ($model) {
+                    array_push($this->_components, $model);
+                }
             }
         }
-        return $componnets;
+        return $this->_components;
     }
     
     protected function afterDelete()
@@ -122,5 +127,10 @@ class Announce extends CActiveRecord
         {
             echo $controller->renderPartial('_frontview', array('model'=>$this));
         }
+    }
+    
+    public function renderComponent($componentName)
+    {
+        
     }
 }

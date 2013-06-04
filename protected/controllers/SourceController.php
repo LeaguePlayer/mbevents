@@ -27,17 +27,17 @@ class SourceController extends Controller
 	public function accessRules()
 	{
 		return array(
-			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','upload'),
-				'users'=>array('admin'),
-			),
-            array('allow',
-                'actions'=>array('download'),
-                'users'=>'@',
-            ),
-			array('deny',  // deny all users
-				'users'=>array('*'),
-			),
+//			array('allow',  allow admin user to perform 'admin' and 'delete' actions
+//				'actions'=>array('admin','delete','upload'),
+//				'users'=>array('admin'),
+//			),
+//            array('allow',
+//                'actions'=>array('download'),
+//                'users'=>'@',
+//            ),
+//			array('deny',   deny all users
+//				'users'=>array('*'),
+//			),
 		);
 	}
 
@@ -60,8 +60,9 @@ class SourceController extends Controller
 	 */
 	public function actionAdmin()
 	{
+        
 		$model=new Source('search');
-		$model->unsetAttributes();  // clear any default values
+		$model->unsetAttributes();   //clear any default values
 		if(isset($_GET['Source']))
 			$model->attributes=$_GET['Source'];
         

@@ -2,9 +2,9 @@
 /* @var $this SourceController */
 /* @var $model Source */
 
-$this->breadcrumbs=array(
-	'Manage',
-);
+//$this->breadcrumbs=array(
+//	'Manage',
+//);
 ?>
 
 <h1>Manage Sources</h1>

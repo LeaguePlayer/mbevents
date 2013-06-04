@@ -14,6 +14,8 @@ class AdminController extends Controller
 	{
 		return CMap::mergeArray(parent::filters(),array(
 			'accessControl', // perform access control for CRUD operations
+            'postOnly + changeStatus',
+            'ajaxOnly + changeStatus',
 		));
 	}
 	/**
@@ -25,7 +27,7 @@ class AdminController extends Controller
 	{
 		return array(
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
-				'actions'=>array('admin','delete','create','update','view'),
+				'actions'=>array('admin','delete','create','update','view','moderation','changeStatus'),
 				'users'=>UserModule::getAdmins(),
 			),
 			array('deny',  // deny all users
@@ -56,6 +58,56 @@ class AdminController extends Controller
 			'dataProvider'=>$dataProvider,
 		));//*/
 	}
+    
+    public function actionModeration()
+    {
+        $model=new User('search');
+        $model->unsetAttributes();  // clear any default values
+        if(isset($_GET['User']))
+            $model->attributes=$_GET['User'];
+
+        $this->render('moderation',array(
+            'model'=>$model,
+        ));
+    }
+    
+    public function actionChangeStatus()
+    {
+        $result = array(
+            'success'=>false,
+        );
+        if ( isset($_POST['UserModeration']) ) {
+            $id = $_POST['UserModeration']['id'];
+            $value = $_POST['UserModeration']['value'];
+            if($this->_model===null)
+    		{
+    			if(is_numeric($id))
+    				$this->_model = User::model()->notsafe()->findbyPk($id);
+    			if($this->_model===null)
+    				throw new CHttpException(404,'The requested page does not exist.');
+    		}
+            $model = $this->_model;
+            $model->status = $value;
+            if ($model->validate(array('status'))) {
+                if ( $model->save(false) ) {
+                    $domain = $_SERVER['HTTP_HOST'];
+                    $statusLabel = User::itemAlias('UserStatus', $model->status);
+                    $notification = EmailNotification::findByType(EmailNotification::TYPE_USER_ACTIVATION);
+                    if ( $notification !== null ) {
+                        $parser = new TextParser(array(
+                            'site_name'=>"http://{$domain}",
+                            'current_status'=>$statusLabel,
+                        ));
+                        $message = $parser->decode($notification->text);
+                        $subject = $parser->decode($notification->subject);
+                        $from = $notification->from;
+                        Functions::sendMail($subject, $message, $model->email, $from);
+                    }
+                }
+            }
+        }
+        
+    }
 
 
 	/**

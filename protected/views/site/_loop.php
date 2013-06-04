@@ -22,7 +22,7 @@
 <?php if ($dataProvider->totalItemCount > $dataProvider->pagination->pageSize): ?>
 
     <div class="progress">
-		<img class="loop" src="/images/post_progress.gif" alt="">
+		<div class="loop"></div>
 		<a href="#more" class="showMore">Хочу еще!</a>
 	</div>
  
@@ -43,11 +43,12 @@
                     loadingFlag = true;
                     loader.show();
                     $.ajax({
-                        type: 'POST',
+                        type: 'GET',
                         url: window.location.href,
                         data: {
                             'page': page + 1,
-                            '<?php echo Yii::app()->request->csrfTokenName; ?>': '<?php echo Yii::app()->request->csrfToken; ?>'
+                            '<?php echo Yii::app()->request->csrfTokenName; ?>': '<?php echo Yii::app()->request->csrfToken; ?>',
+                            LOAD_ARTICLES: true,
                         },
                         success: function(data)
                         {

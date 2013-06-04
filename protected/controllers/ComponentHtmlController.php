@@ -36,9 +36,10 @@ class ComponentHtmlController extends CAnnounceComponentController
         $this->render('create', array('model'=>$model, 'backUrl'=>$backUrl));
     }
     
-    public function update($id, $backUrl = false)
+    public function update($id, $announceId, $backUrl = false)
     {
         $model = $this->loadModel($id);
+        $model->setAnnounceId($announceId);
         if (!$model) {
             throw new CHttpException(404, 'Не найден компонент');
         }

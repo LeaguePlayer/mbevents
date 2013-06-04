@@ -27,7 +27,7 @@ class ComponentPhVidController extends CAnnounceComponentController
         $this->render('create', array('model'=>$model, 'backUrl'=>$backUrl));
     }
     
-    public function update($id, $backUrl = false)
+    public function update($id, $announceId, $backUrl = false)
     {
         $model = $this->loadModel($id);
         if (!$model) {

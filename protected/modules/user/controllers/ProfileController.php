@@ -3,7 +3,18 @@
 class ProfileController extends Controller
 {
 	public $defaultAction = 'profile';
-	public $layout='//layouts/column2';
+	public $layout='//layouts/column1';
+    
+    
+    public function behaviors()
+    {
+        return array(
+            'articleBehavior' => array(
+                'class' => 'AutoLoadArticleBehavior',
+            ),
+        );
+    }
+    
 
 	/**
 	 * @var CActiveRecord the currently loaded data model instance.
@@ -30,31 +41,46 @@ class ProfileController extends Controller
 	{
 		$model = $this->loadUser();
 		$profile=$model->profile;
+        
+        $changePassword = new UserChangePassword('change');
+        
+        //print_r($model->attributes);die();
 		
 		// ajax validator
 		if(isset($_POST['ajax']) && $_POST['ajax']==='profile-form')
 		{
-			echo UActiveForm::validate(array($model,$profile));
+			echo UActiveForm::validate(array($model,$profile,$changePassword));
 			Yii::app()->end();
 		}
 		
 		if(isset($_POST['User']))
 		{
 			$model->attributes=$_POST['User'];
+            $model->newCareersArray = $_POST['User']['careersArray'];
+            $model->newCategoriesArray = $_POST['User']['categoriesArray'];
+            $model->newNotifyCatsArray = $_POST['User']['notifyCatsArray'];
+            
 			$profile->attributes=$_POST['Profile'];
 			
 			if($model->validate()&&$profile->validate()) {
+                if ( isset($_POST['UserChangePassword']) ) {
+                    $changePassword->attributes = $_POST['UserChangePassword'];
+                    if (!empty($changePassword->password) && $changePassword->validate()) {
+                        $model->password = Yii::app()->controller->module->encrypting($changePassword->password);
+                    }
+                }
 				$model->save();
 				$profile->save();
                 Yii::app()->user->updateSession();
-				Yii::app()->user->setFlash('profileMessage',UserModule::t("Changes is saved."));
-				$this->redirect(array('/user/profile'));
+				Yii::app()->user->setFlash('profileMessage',UserModule::t("Настройки сохранены."));
+				$this->redirect(array('/user/profile/edit'));
 			} else $profile->validate();
 		}
 
 		$this->render('edit',array(
 			'model'=>$model,
 			'profile'=>$profile,
+            'changePassword'=>$changePassword,
 		));
 	}
 	

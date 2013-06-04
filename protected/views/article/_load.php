@@ -2,9 +2,9 @@
 	<article>
 		<header>
 			<div class="post-info">
-				<div class="post-date"><?=date('j F Y', strtotime($model->date_public))?></div>
-				<div class="post-views">0</div>
-				<div class="post-comments">0</div>
+				<div class="post-date"><?=Functions::getCalendarDay(strtotime($model->date_public))?></div>
+				<div class="post-views"><?=$model->views?></div>
+				<div class="post-comments"><?=$model->commentCount?></div>
                 <?$counter = 0;?>
                 <?foreach ($model->categories as $category):?>
                     <?if ( ((++$counter) % 2) == 0):?>
@@ -18,58 +18,77 @@
 			<h1><?=$model->title?></h1>
 		</header>
 		<div class="post-body">
-			<img src="/uploads/previews/<?=$model->image?>" alt="" width="380">
+			<?=$model->getImage(380)?>
 			<?=$model->full_description?>
 		</div>
 		<!--<div class="post-social">Соц сети</div>-->
 	</article>
-    <!--
-	<h2>Интересно? Расскажи другу!</h2>
-	<div class="shared-form">
-		<form name="" type="POST" action="">
-			<input class="email blue-style" type="text" value="braisy@yandex.ru" name="">
-			<input class="submit" type="submit" name="">
-			<div class="notice">плохой e-mail</div>
-			<div class="clear"></div>
-		</form>
-	</div>
-    -->
-    <!--
-	<h2>Что думаешь об этом?</h2>
-	<div class="reviews">
-		<div class="review-item">
-			<div class="author">
-				<img src="images/tmp/comment-author.png" alt="">
-				<div class="name">Лев Николаевич, <span>мыслитель</span></div>
-				<div class="date">14 апреля</div>
-			</div>
-			<div class="review-text">С вечера, на последнем переходе, был получен приказ, что главноС вечера, на последнем переходе, был получен приказ, что главно С вечера, на последнем переходе, был получен приказ, что главно</div>
-			<div class="clear"></div>
-		</div>
-		<div class="review-item">
-			<div class="author">
-				<img src="images/tmp/comment-author.png" alt="">
-				<div class="name">Лев Николаевич, <span>мыслитель</span></div>
-				<div class="date">14 апреля</div>
-			</div>
-			<div class="review-text">С вечера, на последнем переходе, был получен приказ, что главноС вечера, на последнем переходе, был получен приказ, что главно С вечера, на последнем переходе, был получен приказ, что главно</div>
-			<div class="clear"></div>
-		</div>
-	</div>
-    -->
-    <!--
-	<h2>Хочу высказаться</h2>
-	<div class="question">
-		<form>
-			<textarea class="blue-style">Комментарий к материалу</textarea>
-			<div class="who">
-				<img src="images/tmp/aristotel.png" alt="">
-				<span>Вы выскажетесь, как Аристотель</span>
-			</div>
-			<input type="submit" class="submit" name="">
-			<a class="auth" href="#auth"></a>
-			<div class="clear"></div>
-		</form>
-	</div>
-    -->
+    
+    <? if (!Yii::app()->user->isGuest): ?>
+    	<h2>Интересно? Расскажи другу!</h2>
+    	<div class="shared-form form">
+            <?php
+                $form=$this->beginWidget('CActiveForm', array(
+                    'action'=>$this->createUrl('/article/sendArticle'),
+                	'id'=>'send_article-form',
+                	'enableAjaxValidation'=>false,
+                ));
+                $sendForm = new SendArticleForm;
+                $sendForm->article_id = $model->id;
+            ?>
+                <?php echo $form->hiddenField($sendForm, 'article_id'); ?>
+                <?php echo $form->textField($sendForm, 'email', array('class'=>'email blue-style')); ?>
+    			<button class="blue_button" type="submit" name="">Поделиться</button>
+    			<div class="notice" style="display: none;"></div>
+    			<div class="clear"></div>
+    		<?php $this->endWidget(); ?>
+    	</div>
+    <? endif; ?>
+    
+    <?php if ( $model->commentCount > 0 ): ?>
+    	<h2>Комментарии</h2>
+    	<div class="reviews">
+            <div class="scroll-wrapper">
+            <div class="scroller">
+            <div class="scroll-container" style="padding-right: 0;">
+        		<?php foreach($model->comments as $item): ?>
+                    <? $this->renderPartial('/comment/_view', array('data'=>$item)); ?>
+                <?php endforeach; ?>
+                <div class="scroller__bar"></div>
+            </div>
+            </div>
+            </div>
+    	</div>
+     <?php endif; ?>
+    
+    <? if ( !Yii::app()->user->isGuest ): ?>
+    	<h2>Вы можете оставить здесь своё мнение</h2>
+    	<div class="question">
+    		<?php $form=$this->beginWidget('CActiveForm', array(
+                'action'=>$this->createUrl('/comment/create'),
+            	'id'=>'comment-form',
+            	'enableAjaxValidation'=>false,
+            )); ?>
+                
+                <?php echo $form->hiddenField($comment,'article_id'); ?>
+            
+                <div class="row">
+            		<?php echo $form->textArea($comment,'content', array('class'=>'blue-style')); ?>
+            		<?php echo $form->error($comment,'content'); ?>
+            	</div>
+                <!--
+    			<div class="who">
+    				<img src="images/tmp/aristotel.png" alt="">
+    				<span>Вы выскажетесь, как Аристотель</span>
+    			</div>
+                -->
+    			<button type="submit" class="blue_button submit"><span class="icon"></span></button>
+                <!--
+    			<a class="auth" href="#auth"></a>
+                -->
+    			<div class="clear"></div>
+    		<?php $this->endWidget(); ?>
+    	</div>
+     <? endif ?>
+     <a class="close_box" href="#">Закрыть</a>
 </section>

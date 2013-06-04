@@ -29,6 +29,10 @@ class User extends CActiveRecord
     // $new_careers_array хранит обновленные значения направлений деятельности
     protected $careers_array;
     protected $new_careers_array;
+    public function setCareersArray($value)
+    {
+        $this->careers_array = $value;
+    }
     public function getCareersArray()
     {
         if ($this->careers_array === null)
@@ -49,6 +53,10 @@ class User extends CActiveRecord
     // наиболее интересные категории
     protected $categories_array;
     protected $new_categories_array;
+    public function setCategoriesArray($value)
+    {
+        $this->categories_array = $value;
+    }
     public function getCategoriesArray()
     {
         if ($this->categories_array === null)
@@ -69,6 +77,10 @@ class User extends CActiveRecord
     // по каким категориям отправлять уведомления
     protected $notify_cats_array;
     protected $new_notify_cats_array;
+    public function setNotifyCatsArray($value)
+    {
+        $this->notify_cats_array = $value;
+    }
     public function getNotifyCatsArray()
     {
         if ($this->notify_cats_array === null)
@@ -83,9 +95,6 @@ class User extends CActiveRecord
     {
         return $this->new_notify_cats_array;
     }
-    
-    
-    
 
 	/**
 	 * Returns the static model of the specified AR class.
@@ -112,7 +121,7 @@ class User extends CActiveRecord
 		// NOTE: you should only define rules for those attributes that
 		// will receive user inputs.CConsoleApplication
 		return ((get_class(Yii::app())=='CConsoleApplication' || (get_class(Yii::app())!='CConsoleApplication' && Yii::app()->getModule('user')->isAdmin()))?array(
-			array('username', 'length', 'max'=>20, 'min' => 3,'message' => UserModule::t("Incorrect username (length between 3 and 20 characters).")),
+			array('username', 'length', 'max'=>30, 'min' => 3,'message' => UserModule::t("Incorrect username (length between 3 and 20 characters).")),
 			array('password', 'length', 'max'=>128, 'min' => 4,'message' => UserModule::t("Incorrect password (minimal length 4 symbols).")),
 			array('email', 'email'),
 			array('username', 'unique', 'message' => UserModule::t("This user's name already exists.")),
@@ -125,6 +134,9 @@ class User extends CActiveRecord
 			array('email, superuser, status', 'required'),
 			array('superuser, status', 'numerical', 'integerOnly'=>true),
 			array('id, username, password, email, activkey, create_at, lastvisit_at, superuser, status', 'safe', 'on'=>'search'),
+            array('newCareersArray, newCategoriesArray, newNotifyCatsArray', 'safe'),
+//            array('send_notify', 'numerical', 'integerOnly'=>true),
+//            array('send_notify', 'in', 'range'=>array(0,1)),
 		):((Yii::app()->user->id==$this->id)?array(
 			array('username, email', 'required'),
 			array('username', 'length', 'max'=>20, 'min' => 3,'message' => UserModule::t("Incorrect username (length between 3 and 20 characters).")),
@@ -132,9 +144,9 @@ class User extends CActiveRecord
 			array('username', 'unique', 'message' => UserModule::t("This user's name already exists.")),
 			array('username', 'match', 'pattern' => '/^[A-Za-z0-9_]+$/u','message' => UserModule::t("Incorrect symbols (A-z0-9).")),
 			array('email', 'unique', 'message' => UserModule::t("This user's email address already exists.")),
-            array('verify_link', 'length', 'max'=>255, 'message' => "Длина ссылки превышает предельно допустимую величину"),
             array('newCareersArray, newCategoriesArray, newNotifyCatsArray', 'safe'),
-            array('send_notify', 'boolean'),
+//            array('send_notify', 'numerical', 'integerOnly'=>true),
+//            array('send_notify', 'in', 'range'=>array(0,1)),
 		):array()));
 	}
 
@@ -151,7 +163,9 @@ class User extends CActiveRecord
         $relations['notifyCats'] = array(self::MANY_MANY, 'Category', 'tbl_user_notify_categories(user_id, category_id)');
         $relations['r_courses'] = array(self::HAS_MANY, 'UserCourses', 'user_id');
         $relations['r_lessons'] = array(self::HAS_MANY, 'UserLessons', 'user_id');
+        $relations['count_r_lessons'] = array(self::STAT, 'UserLessons', 'user_id');
         $relations['count_available_lessons'] = array(self::STAT, 'UserLessons', 'user_id', 'condition'=>'available=1');
+        $relations['promocodes'] = array(self::HAS_MANY, 'PromoCode', 'owner', 'order'=>'promocodes.use_date');
         return $relations;
 	}
 
@@ -163,9 +177,9 @@ class User extends CActiveRecord
 		return array(
 			'id' => UserModule::t("Id"),
 			'username'=>UserModule::t("username"),
-			'password'=>UserModule::t("password"),
+			'password'=>'Придумайте пароль',//UserModule::t("password"),
 			'verifyPassword'=>'Еще раз пароль',//UserModule::t("Retype Password"),
-			'email'=>'E-mail',//UserModule::t("E-mail"),
+			'email'=>'Введите свой e-mail',//UserModule::t("E-mail"),
 			'verifyCode'=>UserModule::t("Verification Code"),
 			'activkey' => UserModule::t("activation key"),
 			'createtime' => UserModule::t("Registration date"),
@@ -174,8 +188,6 @@ class User extends CActiveRecord
 			'lastvisit_at' => UserModule::t("Last visit"),
 			'superuser' => UserModule::t("Superuser"),
 			'status' => UserModule::t("Status"),
-            'verify_link' => "Ссылка на социальную сеть", 
-            'send_notify' => "Отпралять уведомления на почту",
 		);
 	}
 	
@@ -236,7 +248,8 @@ class User extends CActiveRecord
         // should not be searched.
 
         $criteria=new CDbCriteria;
-        
+        $criteria->with = array('profile', 'promocodes');
+                
         $criteria->compare('id',$this->id);
         $criteria->compare('username',$this->username,true);
         $criteria->compare('password',$this->password);
@@ -246,6 +259,7 @@ class User extends CActiveRecord
         $criteria->compare('lastvisit_at',$this->lastvisit_at);
         $criteria->compare('superuser',$this->superuser);
         $criteria->compare('status',$this->status);
+        $criteria->compare('verify_link',$this->profile->verify_link);
 
         return new CActiveDataProvider(get_class($this), array(
             'criteria'=>$criteria,
@@ -352,5 +366,20 @@ class User extends CActiveRecord
             }
             $this->notify_cats_array = $this->new_notify_cats_array;
         }
+    }
+    
+    public function getLastLessons()
+    {
+        $lastLessons = $this->r_lessons(array(
+            'select'=>'lesson_id, date_last_view',
+            'order'=>'date_last_view DESC',
+            'limit'=>3,
+        ));
+        foreach ($lastLessons as $lesson) {
+            $lessons_ids[] = $lesson->lesson_id;
+        }
+        $criteria = new CDbCriteria;
+        $criteria->addInCondition('id', $lessons_ids);
+        return Lesson::model()->findAll($criteria);
     }
 }
