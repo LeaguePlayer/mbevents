@@ -195,16 +195,16 @@ class User extends CActiveRecord
     {
         return array(
             'active'=>array(
-                'condition'=>'status='.self::STATUS_ACTIVE,
+                'condition'=>$this->tableAlias.'.status='.self::STATUS_ACTIVE,
             ),
             'notactive'=>array(
-                'condition'=>'status='.self::STATUS_NOACTIVE,
+                'condition'=>$this->tableAlias.'.status='.self::STATUS_NOACTIVE,
             ),
             'banned'=>array(
-                'condition'=>'status='.self::STATUS_BANNED,
+                'condition'=>$this->tableAlias.'.status='.self::STATUS_BANNED,
             ),
             'superuser'=>array(
-                'condition'=>'superuser=1',
+                'condition'=>$this->tableAlias.'.superuser=1',
             ),
             'notsafe'=>array(
             	'select' => 'id, username, password, email, activkey, create_at, lastvisit_at, superuser, status',

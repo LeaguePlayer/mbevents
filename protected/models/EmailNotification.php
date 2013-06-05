@@ -19,19 +19,21 @@ class EmailNotification extends CActiveRecord
     const TYPE_USER_ACTIVATION     = 2;
     const TYPE_EVENT_REGISTRATION  = 3;
     const TYPE_RECOVERY_PASSWORD   = 4;
+    const TYPE_ADD_ARTICLE         = 5;
     
     public static function itemAlias($type,$code=NULL) {
 		$_items = array(
-			'NoteType' => array(
-				self::TYPE_USER_REGISTRATION => 'После регистрации',
-				self::TYPE_USER_ACTIVATION => 'После активации',
-				self::TYPE_EVENT_REGISTRATION => 'После регистрации на мероприятие',
-                self::TYPE_RECOVERY_PASSWORD => 'Восстановление пароля',
-			),
-			'Status' => array(
-				self::STATUS_SEND => 'Да',
-				self::STATUS_DONTSEND => 'Нет',
-			),
+                    'NoteType' => array(
+                        self::TYPE_USER_REGISTRATION => 'После регистрации',
+                        self::TYPE_USER_ACTIVATION => 'После активации',
+                        self::TYPE_EVENT_REGISTRATION => 'После регистрации на мероприятие',
+                        self::TYPE_RECOVERY_PASSWORD => 'Восстановление пароля',
+                        self::TYPE_ADD_ARTICLE => 'Добавление статьи в блог',
+                    ),
+                    'Status' => array(
+                        self::STATUS_SEND => 'Да',
+                        self::STATUS_DONTSEND => 'Нет',
+                    ),
 		);
 		if (isset($code))
 			return isset($_items[$type][$code]) ? $_items[$type][$code] : false;
@@ -96,7 +98,7 @@ class EmailNotification extends CActiveRecord
 			'subject' => 'Заголовок',
 			'text' => 'Содержание',
 			'from' => 'От кого',
-            'status' => 'Отправлять это уведомление?'
+                        'status' => 'Отправлять это уведомление?'
 		);
 	}
 

@@ -90,9 +90,12 @@ class ArticleController extends Controller
         $model->date_public = date('d.m.Y');
         
         $model->send_notifyces = true;
-        $siteUrl = 'http://'.$_SERVER['HTTP_HOST'];
-        $model->subject_message = "На сайте {$siteUrl} в блог добавлена новая статья";
-        $model->notification_message = "На сайт {$siteUrl} по интересующей вас тематике добавлена новая статья.";
+        // получаем шаблон рассылки уведомления
+        $email_notific = EmailNotification::model()->find("note_type=".EmailNotification::TYPE_ADD_ARTICLE);
+        if($email_notific){
+            $model->subject_message = $email_notific->subject;
+            $model->notification_message = $email_notific->text;
+        }
 
                 // Uncomment the following line if AJAX validation is needed
                 // $this->performAjaxValidation($model);
@@ -100,13 +103,12 @@ class ArticleController extends Controller
             if(isset($_POST['Article']))
             {
                 $model->attributes=$_POST['Article'];
-
                 if ( isset($_POST['Article']['categories']) ) {
                     $model->newCategories = array_keys($_POST['Article']['categories']);
                 }
                 if($model->save()) {
                     if ( $model->send_notifyces && $model->status != Article::STATUS_DRAFT ) {
-                        $this->sendNotifications($model);
+                        $this->sendNotifications($model->id);
                     }
                     $this->redirect(array('admin'));
                 }
@@ -131,45 +133,37 @@ class ArticleController extends Controller
 //        print_r($_POST);
 //        echo '</pre>';
 //        exit;
-        $this->layout='//layouts/column2';
-		$model=$this->loadModel($id);
-		// Uncomment the following line if AJAX validation is needed
-		// $this->performAjaxValidation($model);
-        
-//        $model->send_notifyces = true;
-//        $siteUrl = 'http://'.$_SERVER['HTTP_HOST'];
-//        $model->subject_message = "На сайте {$siteUrl} в блог добавлена новая статья";
-//        $model->notification_message = "На сайт {$siteUrl} по интересующей вас тематике добавлена новая статья.";
+            $this->layout='//layouts/column2';
+            $model=$this->loadModel($id);
+            // Uncomment the following line if AJAX validation is needed
+            // $this->performAjaxValidation($model);
 
-		if(isset($_POST['Article'])) {
-                    $oldStatus = $model->status;
-//                    $model->setAttributes($_POST['Article']);
-//                    $model->send_notifyces = $_POST['Article']['send_notifyces'];
-//                    $model->subject_message = $_POST['Article']['subject_message'];
-//                    $model->notification_message = $_POST['Article']['notification_message'];
-                    
-                    $model->attributes=$_POST['Article'];
-                    if ( isset($_POST['Article']['categories']) ) {
-                        $model->newCategories = array_keys($_POST['Article']['categories']);
+            if(isset($_POST['Article'])) {
+                $oldStatus = $model->status;
+                $model->attributes=$_POST['Article'];
+                if ( isset($_POST['Article']['categories']) ) {
+                    $model->newCategories = array_keys($_POST['Article']['categories']);
+                }
+                if($model->save()) {
+                      // отправка сообщений пользователям
+                    if ( $oldStatus==Article::STATUS_DRAFT && $model->status != $oldStatus && $model->send_notifyces ) {
+                        $this->sendNotifications($model->id);
                     }
-                    if($model->save()) {
-                        if ( $oldStatus==Article::STATUS_DRAFT && $model->status != $oldStatus && $model->send_notifyces ) {
-                            $this->sendNotifications($model);
-                        }
-                    }
-                    $this->redirect(array('admin'));
-		}
-
-        $url = $this->getAssetsBase();
-        Yii::app()->clientScript->registerScriptFile( $url.'/js/jquery.autoresize.js', CClientScript::POS_END );
-        Yii::app()->clientScript->registerScriptFile( $url.'/js/tags.js', CClientScript::POS_END );
-		$this->render('update',array(
-			'model'=>$model,
-		));
+                }
+                $this->redirect(array('admin'));
+            }
+            $url = $this->getAssetsBase();
+            Yii::app()->clientScript->registerScriptFile( $url.'/js/jquery.autoresize.js', CClientScript::POS_END );
+            Yii::app()->clientScript->registerScriptFile( $url.'/js/tags.js', CClientScript::POS_END );
+            $this->render('update',array(
+                    'model'=>$model,
+            ));
 	}
     
-    public function sendNotifications(Article $article)
+    // отправка уведомлений пользователям
+    public function sendNotifications($id)
     {
+        $article = Article::model()->findByPk($id);
         // поиск пользователей для рассылки уведомлений
         $criteria = new CDbCriteria;
         $criteria->addCondition('profile.send_notify=1');
@@ -179,13 +173,16 @@ class ArticleController extends Controller
                 array_push($partConditions, "notifyCats_notifyCats.category_id=".$categoryId);
         }
         $condition = implode(" OR ", $partConditions);
-        $criteria->addCondition("(".$condition.")");
+        if(!empty($condition))
+            $criteria->addCondition("(".$condition.")");
         $users = User::model()->with(array('notifyCats','profile'))->active()->findAll($criteria);
         
         $siteUrl = 'http://'.$_SERVER['HTTP_HOST'];
         $articleUrl = $this->createUrl('/lesson/load', array('id'=>$article->id));
         $subject = $article->subject_message;
         $message = $article->notification_message;
+        // указываем флагом что сообщение уже отправлено подписчикам
+        $article->updateByPk($id,array('send_notifyces'=>'0'));
         foreach ( $users as $user ) {
             Functions::sendMail($subject, $message, $user->email, "Академия Брайана Трейси");
         }
